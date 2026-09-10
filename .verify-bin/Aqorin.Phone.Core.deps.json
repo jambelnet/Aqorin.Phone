@@ -1,0 +1,59 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v10.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v10.0": {
+      "Aqorin.Phone.Core/0.1.1": {
+        "dependencies": {
+          "Microsoft.Extensions.Logging.Abstractions": "10.0.12"
+        },
+        "runtime": {
+          "Aqorin.Phone.Core.dll": {}
+        }
+      },
+      "Microsoft.Extensions.DependencyInjection.Abstractions/10.0.12": {
+        "runtime": {
+          "lib/net10.0/Microsoft.Extensions.DependencyInjection.Abstractions.dll": {
+            "assemblyVersion": "10.0.0.0",
+            "fileVersion": "10.0.1226.42308"
+          }
+        }
+      },
+      "Microsoft.Extensions.Logging.Abstractions/10.0.12": {
+        "dependencies": {
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "10.0.12"
+        },
+        "runtime": {
+          "lib/net10.0/Microsoft.Extensions.Logging.Abstractions.dll": {
+            "assemblyVersion": "10.0.0.0",
+            "fileVersion": "10.0.1226.42308"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "Aqorin.Phone.Core/0.1.1": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Microsoft.Extensions.DependencyInjection.Abstractions/10.0.12": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-9/qymSh7hVDMGTGwrLz8MRp5zRyXy9adGDOs4HwRdnLil3oZGYuWeZjbmHgCQ9BL1qBroVfgUK3U/nb61617Cw==",
+      "path": "microsoft.extensions.dependencyinjection.abstractions/10.0.12",
+      "hashPath": "microsoft.extensions.dependencyinjection.abstractions.10.0.12.nupkg.sha512"
+    },
+    "Microsoft.Extensions.Logging.Abstractions/10.0.12": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-+24lC4plfbEDNfLAdTV/SWKS7dW+16X4HdydO3R++134kSNTzcbYA4KpR1Hdh6uWisB8Za3AzwyOn+K+NxWIug==",
+      "path": "microsoft.extensions.logging.abstractions/10.0.12",
+      "hashPath": "microsoft.extensions.logging.abstractions.10.0.12.nupkg.sha512"
+    }
+  }
+}

@@ -1,0 +1,88 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Aqorin.Phone.App.ViewModels"
+             xmlns:views="using:Aqorin.Phone.App.Views"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="1120" d:DesignHeight="560"
+             x:Class="Aqorin.Phone.App.Views.ContactsView"
+             x:Name="ContactsRoot"
+             x:DataType="vm:DialerViewModel"
+             x:CompileBindings="False">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <Grid Margin="18" HorizontalAlignment="Center">
+            <Border Classes="phoneShell">
+                <Grid RowDefinitions="Auto,Auto,Auto,*" RowSpacing="16">
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                        <StackPanel>
+                            <TextBlock Classes="heroTitle" Text="Contacts" />
+                            <TextBlock Classes="caption" Text="People and extensions you call often." />
+                        </StackPanel>
+                        <Button Grid.Column="1" Classes="roundUtility" Content="+" Command="{Binding ShowAddContactCommand}" />
+                    </Grid>
+
+                    <Border Grid.Row="1" Classes="segmented" HorizontalAlignment="Left">
+                        <Grid ColumnDefinitions="Auto,Auto" ColumnSpacing="8">
+                            <Button Classes="segmentChip" Command="{Binding ShowFavoriteContactsCommand}">
+                                <Border Classes="segmentChipFill"
+                                        Background="{Binding IsFavoritesFilterSelected, Converter={x:Static views:Converters.SelectedSegmentBrush}}">
+                                    <TextBlock Text="Favorites" TextAlignment="Center" VerticalAlignment="Center"
+                                               Foreground="{Binding IsFavoritesFilterSelected, Converter={x:Static views:Converters.SelectedSegmentForegroundBrush}}" />
+                                </Border>
+                            </Button>
+                            <Button Grid.Column="1" Classes="segmentChip" Command="{Binding ShowAllContactsCommand}">
+                                <Border Classes="segmentChipFill"
+                                        Background="{Binding IsAllFilterSelected, Converter={x:Static views:Converters.SelectedSegmentBrush}}">
+                                    <TextBlock Text="All" TextAlignment="Center" VerticalAlignment="Center"
+                                               Foreground="{Binding IsAllFilterSelected, Converter={x:Static views:Converters.SelectedSegmentForegroundBrush}}" />
+                                </Border>
+                            </Button>
+                        </Grid>
+                    </Border>
+
+                    <Border Grid.Row="2" Classes="card" IsVisible="{Binding IsAddingContact}">
+                        <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto" RowSpacing="8">
+                            <TextBlock Classes="label" Text="Name" Margin="0,0,0,2" />
+                            <TextBox Grid.Row="1" Text="{Binding NewContactName}" Watermark="Sarah Mitchell" />
+                            <TextBlock Grid.Row="2" Classes="label" Text="Number" Margin="0,4,0,2" />
+                            <TextBox Grid.Row="3" Text="{Binding NewContactNumber}" Watermark="1003 or +49..." />
+                            <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8" Margin="0,8,0,0">
+                                <TextBlock Classes="error" Text="{Binding ContactError}" IsVisible="{Binding HasContactError}" VerticalAlignment="Center" />
+                                <Button Content="Cancel" Command="{Binding CancelAddContactCommand}" />
+                                <Button Classes="primary" Content="Save" Command="{Binding SaveContactCommand}" />
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <Grid Grid.Row="3">
+                        <TextBlock Classes="caption" Text="No contacts yet. Tap + to add one."
+                                   IsVisible="{Binding ShowEmptyContacts}" HorizontalAlignment="Center"
+                                   VerticalAlignment="Center" TextAlignment="Center" />
+
+                        <ItemsControl ItemsSource="{Binding VisibleContacts}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Classes="listRow" ColumnDefinitions="44,*,52,52" ColumnSpacing="8">
+                                        <Border Classes="avatarSmall">
+                                            <TextBlock Text="{Binding Initials}" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center" />
+                                        </Border>
+                                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                                            <TextBlock Text="{Binding Number}" Classes="caption" TextTrimming="CharacterEllipsis" />
+                                        </StackPanel>
+                                        <Button Grid.Column="2" Classes="contactAction" Content="Call"
+                                                Command="{Binding #ContactsRoot.DataContext.CallContactCommand}"
+                                                CommandParameter="{Binding}" />
+                                        <Button Grid.Column="3" Classes="contactAction dangerText" Content="Del"
+                                                Command="{Binding #ContactsRoot.DataContext.RemoveContactCommand}"
+                                                CommandParameter="{Binding}" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </Grid>
+                </Grid>
+            </Border>
+        </Grid>
+    </ScrollViewer>
+</UserControl>

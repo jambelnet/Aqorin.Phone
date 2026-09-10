@@ -1,0 +1,10 @@
+bin/
+obj/
+artifacts/
+publish/
+*.user
+*.suo
+.vs/
+.idea/
+TestResults/
+.DS_Store

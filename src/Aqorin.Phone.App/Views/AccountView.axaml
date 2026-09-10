@@ -1,0 +1,138 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Aqorin.Phone.App.ViewModels"
+             xmlns:views="using:Aqorin.Phone.App.Views"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="460" d:DesignHeight="640"
+             x:Class="Aqorin.Phone.App.Views.AccountView"
+             x:DataType="vm:AccountViewModel">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0,0,4,0">
+        <StackPanel Margin="12,6,8,10" Spacing="10">
+
+            <Border Classes="card">
+                <StackPanel>
+                    <TextBlock Classes="title" Text="SIP account" />
+                    <TextBlock Classes="caption" Margin="0,2,0,4"
+                               Text="Use the SIP extension/account from your router or PBX." />
+
+                    <TextBlock Classes="label" Text="Router profile" />
+                    <ComboBox ItemsSource="{Binding RouterProfiles}" SelectedItem="{Binding SelectedRouterProfile}"
+                              HorizontalAlignment="Stretch" IsEnabled="{Binding CanEditSettings}" />
+                    <TextBlock Classes="caption" Text="{Binding RouterCompatibilityHint}" />
+
+                    <Grid ColumnDefinitions="*,10,110">
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Classes="label" Text="Registrar / host" />
+                            <TextBox Text="{Binding Registrar}" PlaceholderText="fritz.box" IsEnabled="{Binding CanEditSettings}" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Classes="label" Text="Port" />
+                            <TextBox Text="{Binding PortText}" PlaceholderText="5060" IsEnabled="{Binding CanEditSettings}" />
+                        </StackPanel>
+                    </Grid>
+
+                    <Grid ColumnDefinitions="*,10,*">
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Classes="label" Text="Transport" />
+                            <ComboBox ItemsSource="{Binding TransportOptions}" SelectedItem="{Binding Transport}"
+                                      HorizontalAlignment="Stretch" IsEnabled="{Binding CanEditSettings}" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Classes="label" Text="Registration expiry (s)" />
+                            <TextBox Text="{Binding ExpiryText}" PlaceholderText="300" IsEnabled="{Binding CanEditSettings}" />
+                        </StackPanel>
+                    </Grid>
+
+                    <Grid ColumnDefinitions="*,10,*">
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Classes="label" Text="Username" />
+                            <TextBox Text="{Binding Username}" PlaceholderText="620" IsEnabled="{Binding CanEditSettings}" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Classes="label" Text="Display name (optional)" />
+                            <TextBox Text="{Binding DisplayName}" PlaceholderText="Desk phone" IsEnabled="{Binding CanEditSettings}" />
+                        </StackPanel>
+                    </Grid>
+
+                    <TextBlock Classes="label" Text="Password" />
+                    <TextBox Text="{Binding Password}" PasswordChar="●" PlaceholderText="SIP password"
+                             IsEnabled="{Binding CanEditSettings}" />
+                    <CheckBox Margin="0,6,0,0" IsChecked="{Binding RememberPassword}" Content="Remember password" />
+                    <TextBlock Classes="caption" Text="{Binding PasswordStorageHint}" IsVisible="{Binding RememberPassword}" />
+                    <TextBlock Classes="caption" Text="Kept in memory only for this session; never written to logs." IsVisible="{Binding !RememberPassword}" />
+
+                    <Expander Margin="0,10,0,0">
+                        <Expander.Header>
+                            <TextBlock Text="Audio preferences" FontSize="13" />
+                        </Expander.Header>
+                        <StackPanel>
+                            <Grid ColumnDefinitions="*,10,*">
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Classes="label" Text="Microphone" />
+                                    <ComboBox ItemsSource="{Binding InputDeviceOptions}" SelectedItem="{Binding SelectedInputDevice}"
+                                              HorizontalAlignment="Stretch" />
+                                </StackPanel>
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Classes="label" Text="Speaker" />
+                                    <ComboBox ItemsSource="{Binding OutputDeviceOptions}" SelectedItem="{Binding SelectedOutputDevice}"
+                                              HorizontalAlignment="Stretch" />
+                                </StackPanel>
+                            </Grid>
+                            <Grid ColumnDefinitions="*,Auto" Margin="0,8,0,0">
+                                <TextBlock Grid.Column="0" Classes="caption" Text="{Binding AudioBackendText}" VerticalAlignment="Center" />
+                                <Button Grid.Column="1" Content="Refresh" Command="{Binding RefreshAudioDevicesCommand}" />
+                            </Grid>
+                            <CheckBox Margin="0,12,0,0"
+                                      IsChecked="{Binding PlayIncomingCallSound}"
+                                      Content="Play sound when someone calls" />
+                            <CheckBox Margin="0,6,0,0"
+                                      IsChecked="{Binding ShowIncomingCallPreviews}"
+                                      Content="Show caller name or number for incoming calls" />
+                        </StackPanel>
+                    </Expander>
+
+                    <Expander Margin="0,10,0,0">
+                        <Expander.Header>
+                            <TextBlock Text="Advanced" FontSize="13" />
+                        </Expander.Header>
+                        <StackPanel>
+                            <TextBlock Classes="label" Text="Local SIP port (0 = automatic)" Margin="0,0,0,4" />
+                            <TextBox Text="{Binding LocalPortText}" PlaceholderText="0" IsEnabled="{Binding CanEditSettings}" MaxWidth="160" HorizontalAlignment="Left" />
+                            <CheckBox Margin="0,8,0,0" IsChecked="{Binding DiagnosticLogging}"
+                                      Content="Diagnostic logging (full SIP traces, credentials redacted)" />
+                        </StackPanel>
+                    </Expander>
+
+                    <TextBlock Classes="error" Text="{Binding ValidationError}" IsVisible="{Binding HasValidationError}" Margin="0,10,0,0" />
+
+                    <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,12,0,0">
+                        <Button Classes="primary" Content="Register" Command="{Binding RegisterCommand}" MinWidth="120" />
+                        <Button Content="Unregister" Command="{Binding UnregisterCommand}" MinWidth="120" />
+                    </StackPanel>
+                    <ProgressBar IsIndeterminate="True" Height="3" Margin="0,10,0,0" HorizontalAlignment="Stretch"
+                                 IsVisible="{Binding IsBusy}" />
+                </StackPanel>
+            </Border>
+
+            <Border Classes="card">
+                <StackPanel Spacing="6">
+                    <Grid ColumnDefinitions="Auto,*,Auto">
+                        <TextBlock Grid.Column="0" Classes="title" Text="Registration" VerticalAlignment="Center" />
+                        <Border Grid.Column="2" Classes="pill" Background="{Binding State, Converter={x:Static views:Converters.RegistrationStateBrush}}">
+                            <TextBlock Text="{Binding StateText}" />
+                        </Border>
+                    </Grid>
+                    <TextBlock Text="{Binding StatusMessage}" TextWrapping="Wrap" />
+                    <TextBlock Text="{Binding ExpiryInfo}" Classes="caption" IsVisible="{Binding ExpiryInfo, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+                    <Expander IsVisible="{Binding HasStatusDetail}" Margin="0,4,0,0">
+                        <Expander.Header>
+                            <TextBlock Text="Technical details" FontSize="12" />
+                        </Expander.Header>
+                        <SelectableTextBlock Classes="mono" Text="{Binding StatusDetail}" TextWrapping="Wrap" FontSize="12" />
+                    </Expander>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

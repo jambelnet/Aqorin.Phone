@@ -1,0 +1,60 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Aqorin.Phone.App.ViewModels"
+             xmlns:views="using:Aqorin.Phone.App.Views"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="1120" d:DesignHeight="560"
+             x:Class="Aqorin.Phone.App.Views.RecentsView"
+             x:Name="RecentsRoot"
+             x:DataType="vm:DialerViewModel"
+             x:CompileBindings="False">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <Grid Margin="18" HorizontalAlignment="Center">
+            <Border Classes="phoneShell">
+                <Grid RowDefinitions="Auto,*" RowSpacing="16">
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                        <StackPanel>
+                            <TextBlock Classes="heroTitle" Text="Recent Calls" />
+                            <TextBlock Classes="caption" Text="Incoming, outgoing, and missed calls." />
+                        </StackPanel>
+                        <Button Grid.Column="1" Classes="roundUtility" Content="Clear"
+                                Command="{Binding ClearRecentCallsCommand}"
+                                IsVisible="{Binding !ShowEmptyRecentCalls}" />
+                    </Grid>
+
+                    <Grid Grid.Row="1">
+                        <TextBlock Classes="caption" Text="No recent calls yet."
+                                   IsVisible="{Binding ShowEmptyRecentCalls}" HorizontalAlignment="Center"
+                                   VerticalAlignment="Center" TextAlignment="Center" />
+
+                        <ItemsControl ItemsSource="{Binding RecentCalls}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Classes="listRow" ColumnDefinitions="44,*,Auto,64" ColumnSpacing="10">
+                                        <Border Classes="callDirectionBadge">
+                                            <TextBlock Text="{Binding DirectionText}" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center" />
+                                        </Border>
+                                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                                            <TextBlock Text="{Binding Number}" Classes="caption" TextTrimming="CharacterEllipsis" />
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding When}" Classes="caption" HorizontalAlignment="Right" />
+                                            <TextBlock Text="{Binding Status}" Classes="caption"
+                                                       Foreground="{Binding IsMissed, Converter={x:Static views:Converters.MissedCallBrush}}"
+                                                       HorizontalAlignment="Right" />
+                                        </StackPanel>
+                                        <Button Grid.Column="3" Classes="roundUtility" Content="Call"
+                                                Command="{Binding #RecentsRoot.DataContext.CallRecentCommand}"
+                                                CommandParameter="{Binding}" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </Grid>
+                </Grid>
+            </Border>
+        </Grid>
+    </ScrollViewer>
+</UserControl>

@@ -1,0 +1,67 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Aqorin.Phone.App.ViewModels"
+             xmlns:views="using:Aqorin.Phone.App.Views"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="1120" d:DesignHeight="560"
+             x:Class="Aqorin.Phone.App.Views.DialerView"
+             x:Name="DialerRoot"
+             x:DataType="vm:DialerViewModel"
+             x:CompileBindings="False">
+    <UserControl.KeyBindings>
+        <KeyBinding Gesture="Enter" Command="{Binding CallCommand}" />
+    </UserControl.KeyBindings>
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <Grid Margin="18" HorizontalAlignment="Center">
+            <Border Classes="phoneShell">
+                <Grid RowDefinitions="Auto,Auto,*,Auto,Auto" RowSpacing="18">
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                        <StackPanel>
+                            <TextBlock Classes="heroTitle" Text="Make a Call" />
+                            <TextBlock Classes="caption" Text="{Binding RegistrationHint}" IsVisible="{Binding !IsRegistered}" />
+                            <TextBlock Classes="caption" Text="Enter a number or choose a contact." IsVisible="{Binding IsRegistered}" />
+                        </StackPanel>
+                        <Border Grid.Column="1" Classes="pill" Background="{Binding State, Converter={x:Static views:Converters.CallStateBrush}}">
+                            <TextBlock Text="{Binding StateText}" />
+                        </Border>
+                    </Grid>
+
+                    <Grid Grid.Row="1" ColumnDefinitions="*,10,44">
+                        <TextBox Grid.Column="0" Text="{Binding Destination}" PlaceholderText="+49 30 123456"
+                                 FontSize="24" MinHeight="54" VerticalContentAlignment="Center"
+                                 IsEnabled="{Binding !IsInCall}">
+                            <TextBox.KeyBindings>
+                                <KeyBinding Gesture="Enter" Command="{Binding CallCommand}" />
+                            </TextBox.KeyBindings>
+                        </TextBox>
+                        <Button Grid.Column="2" Classes="roundUtility" Content="X" Command="{Binding ClearDestinationCommand}" />
+                    </Grid>
+
+                    <ItemsControl Grid.Row="2" ItemsSource="{Binding KeypadButtons}" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <UniformGrid Columns="3" Rows="4" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Button Classes="dialPadButton" Command="{Binding #DialerRoot.DataContext.AppendDigitCommand}" CommandParameter="{Binding}">
+                                    <TextBlock Text="{Binding Value}" Classes="digit" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center" />
+                                </Button>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <Grid Grid.Row="3" ColumnDefinitions="*,Auto,16,Auto,*">
+                        <Button Grid.Column="1" Classes="callRound" Content="Call" Command="{Binding CallCommand}" IsDefault="True" />
+                        <Button Grid.Column="3" Classes="roundUtility" Content="Del" Command="{Binding BackspaceCommand}" />
+                    </Grid>
+
+                    <TextBlock Grid.Row="4" Classes="error" Text="{Binding ErrorMessage}" IsVisible="{Binding HasError}"
+                               TextAlignment="Center" />
+                </Grid>
+            </Border>
+        </Grid>
+    </ScrollViewer>
+</UserControl>

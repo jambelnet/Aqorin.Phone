@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Aqorin.Phone.Audio</RootNamespace>
+    <Description>PortAudio-based microphone/speaker implementation of the application-owned audio abstractions.</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Aqorin.Phone.Core/Aqorin.Phone.Core.csproj" />
+    <!-- PortAudioSharp2 depends on org.k2fsa.portaudio.runtime.{win-x64,linux-x64,linux-aarch64,osx-x64,osx-arm64},
+         which ship the native library under runtimes/<rid>/native/. DllImport("portaudio") resolves it at run time. -->
+    <PackageReference Include="PortAudioSharp2" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="Aqorin.Phone.Core.Tests" />
+  </ItemGroup>
+</Project>

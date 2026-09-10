@@ -1,0 +1,62 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Aqorin.Phone.App.ViewModels"
+             xmlns:views="using:Aqorin.Phone.App.Views"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="1120" d:DesignHeight="560"
+             x:Class="Aqorin.Phone.App.Views.ActiveCallView"
+             x:DataType="vm:DialerViewModel"
+             x:CompileBindings="False">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <Grid Margin="18" HorizontalAlignment="Center">
+            <Border Classes="phoneShell">
+                <Grid RowDefinitions="Auto,*,Auto,Auto" RowSpacing="20">
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                        <StackPanel>
+                            <TextBlock Classes="heroTitle" Text="Active Call" />
+                            <TextBlock Classes="caption" Text="{Binding DisplayStatusMessage}" TextTrimming="CharacterEllipsis" />
+                        </StackPanel>
+                        <Border Grid.Column="1" Classes="pill" Background="{Binding State, Converter={x:Static views:Converters.CallStateBrush}}">
+                            <TextBlock Text="{Binding StateText}" />
+                        </Border>
+                    </Grid>
+
+                    <StackPanel Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="10">
+                        <Border Classes="avatarLarge">
+                            <TextBlock Text="&#xE77B;" FontFamily="Segoe MDL2 Assets" FontSize="46"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center" />
+                        </Border>
+                        <TextBlock Text="{Binding DisplayRemoteParty}" FontSize="24" FontWeight="SemiBold"
+                                   HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap"
+                                   MaxWidth="340" IsVisible="{Binding IsInCall}" />
+                        <TextBlock Text="{Binding DisplayStatusMessage}" Classes="caption" HorizontalAlignment="Center"
+                                   TextAlignment="Center" TextWrapping="Wrap" MaxWidth="340" />
+                        <TextBlock Text="{Binding Duration}" FontSize="22" HorizontalAlignment="Center" IsVisible="{Binding IsActive}" />
+                        <TextBlock Text="{Binding Detail}" Classes="caption" IsVisible="{Binding HasDetail}"
+                                   TextAlignment="Center" TextWrapping="Wrap" MaxWidth="340" />
+                    </StackPanel>
+
+                    <UniformGrid Grid.Row="2" Columns="3" Rows="1" HorizontalAlignment="Center">
+                        <Button Classes="callControl" Command="{Binding ToggleMuteCommand}" IsEnabled="{Binding IsInCall}">
+                            <TextBlock Classes="controlText" Text="{Binding MuteButtonText}" />
+                        </Button>
+                        <Button Classes="callControl" Command="{Binding ToggleHoldCommand}" IsEnabled="{Binding IsActive}">
+                            <TextBlock Classes="controlText" Text="{Binding HoldButtonText}" />
+                        </Button>
+                        <Button Classes="callControl" Classes.activeControl="{Binding IsSpeakerEnabled}"
+                                Command="{Binding ToggleSpeakerCommand}" IsEnabled="{Binding IsInCall}">
+                            <TextBlock Classes="controlText" Text="{Binding SpeakerButtonText}" />
+                        </Button>
+                    </UniformGrid>
+
+                    <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center" Spacing="10">
+                        <Button Classes="success" Content="Answer" Command="{Binding AnswerCommand}" IsVisible="{Binding IsIncoming}" MinWidth="120" />
+                        <Button Classes="danger" Content="Reject" Command="{Binding RejectCommand}" IsVisible="{Binding IsIncoming}" MinWidth="120" />
+                        <Button Classes="hangupWide" Content="Hang up" Command="{Binding HangupCommand}" IsVisible="{Binding ShowHangup}" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+    </ScrollViewer>
+</UserControl>

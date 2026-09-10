@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Aqorin.Phone.Sip</RootNamespace>
+    <Description>SIPSorcery-based implementation of registration, call signalling and RTP audio media sessions.</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Aqorin.Phone.Core/Aqorin.Phone.Core.csproj" />
+    <PackageReference Include="SIPSorcery" />
+    <PackageReference Include="SIPSorceryMedia.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="Aqorin.Phone.Sip.Tests" />
+    <InternalsVisibleTo Include="Aqorin.Phone.IntegrationTests" />
+  </ItemGroup>
+</Project>

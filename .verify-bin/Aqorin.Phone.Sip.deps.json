@@ -1,0 +1,312 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v10.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v10.0": {
+      "Aqorin.Phone.Sip/0.1.1": {
+        "dependencies": {
+          "Aqorin.Phone.Core": "0.1.1",
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "10.0.12",
+          "Microsoft.Extensions.Logging.Abstractions": "10.0.12",
+          "SIPSorcery": "10.0.16",
+          "SIPSorceryMedia.Abstractions": "10.0.16"
+        },
+        "runtime": {
+          "Aqorin.Phone.Sip.dll": {}
+        }
+      },
+      "BouncyCastle.Cryptography/2.7.0": {
+        "runtime": {
+          "lib/net6.0/BouncyCastle.Cryptography.dll": {
+            "assemblyVersion": "2.0.0.0",
+            "fileVersion": "2.7.0.16391"
+          }
+        }
+      },
+      "Common.Logging/3.4.1": {
+        "dependencies": {
+          "Common.Logging.Core": "3.4.1"
+        },
+        "runtime": {
+          "lib/netstandard1.3/Common.Logging.dll": {
+            "assemblyVersion": "3.4.1.0",
+            "fileVersion": "3.4.0.0"
+          }
+        }
+      },
+      "Common.Logging.Core/3.4.1": {
+        "runtime": {
+          "lib/netstandard1.0/Common.Logging.Core.dll": {
+            "assemblyVersion": "3.4.1.0",
+            "fileVersion": "3.4.0.0"
+          }
+        }
+      },
+      "Concentus/2.2.2": {
+        "runtime": {
+          "lib/net8.0/Concentus.dll": {
+            "assemblyVersion": "2.2.2.0",
+            "fileVersion": "2.2.2.0"
+          }
+        }
+      },
+      "DnsClient/1.8.0": {
+        "runtime": {
+          "lib/net8.0/DnsClient.dll": {
+            "assemblyVersion": "1.8.0.0",
+            "fileVersion": "1.8.0.0"
+          }
+        }
+      },
+      "IPNetwork2/2.1.2": {
+        "runtime": {
+          "lib/netstandard1.3/System.Net.IPNetwork.dll": {
+            "assemblyVersion": "2.1.2.0",
+            "fileVersion": "2.1.2.0"
+          }
+        }
+      },
+      "Makaretu.Dns/2.0.1": {
+        "dependencies": {
+          "SimpleBase": "1.3.1"
+        },
+        "runtime": {
+          "lib/netstandard2.0/Makaretu.Dns.dll": {
+            "assemblyVersion": "2.0.1.0",
+            "fileVersion": "2.0.1.0"
+          }
+        }
+      },
+      "Makaretu.Dns.Multicast/0.27.0": {
+        "dependencies": {
+          "Common.Logging": "3.4.1",
+          "IPNetwork2": "2.1.2",
+          "Makaretu.Dns": "2.0.1",
+          "Tmds.LibC": "0.2.0"
+        },
+        "runtime": {
+          "lib/netstandard2.0/Makaretu.Dns.Multicast.dll": {
+            "assemblyVersion": "0.27.0.0",
+            "fileVersion": "0.27.0.0"
+          }
+        }
+      },
+      "Microsoft.Extensions.DependencyInjection.Abstractions/10.0.12": {
+        "runtime": {
+          "lib/net10.0/Microsoft.Extensions.DependencyInjection.Abstractions.dll": {
+            "assemblyVersion": "10.0.0.0",
+            "fileVersion": "10.0.1226.42308"
+          }
+        }
+      },
+      "Microsoft.Extensions.Logging.Abstractions/10.0.12": {
+        "dependencies": {
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "10.0.12"
+        },
+        "runtime": {
+          "lib/net10.0/Microsoft.Extensions.Logging.Abstractions.dll": {
+            "assemblyVersion": "10.0.0.0",
+            "fileVersion": "10.0.1226.42308"
+          }
+        }
+      },
+      "SimpleBase/1.3.1": {
+        "runtime": {
+          "lib/netstandard1.3/SimpleBase.dll": {
+            "assemblyVersion": "1.3.1.0",
+            "fileVersion": "1.3.1.0"
+          }
+        }
+      },
+      "SIPSorcery/10.0.16": {
+        "dependencies": {
+          "BouncyCastle.Cryptography": "2.7.0",
+          "Concentus": "2.2.2",
+          "DnsClient": "1.8.0",
+          "Makaretu.Dns.Multicast": "0.27.0",
+          "Microsoft.Extensions.Logging.Abstractions": "10.0.12",
+          "SIPSorcery.WebSocketSharp": "0.0.1",
+          "SIPSorceryMedia.Abstractions": "10.0.16"
+        },
+        "runtime": {
+          "lib/net10.0/SIPSorcery.dll": {
+            "assemblyVersion": "10.0.16.0",
+            "fileVersion": "10.0.16.0"
+          }
+        }
+      },
+      "SIPSorcery.WebSocketSharp/0.0.1": {
+        "runtime": {
+          "lib/netstandard2.0/websocket-sharp.dll": {
+            "assemblyVersion": "0.0.1.0",
+            "fileVersion": "0.0.1.0"
+          }
+        }
+      },
+      "SIPSorceryMedia.Abstractions/10.0.16": {
+        "dependencies": {
+          "Microsoft.Extensions.Logging.Abstractions": "10.0.12"
+        },
+        "runtime": {
+          "lib/net10.0/SIPSorceryMedia.Abstractions.dll": {
+            "assemblyVersion": "10.0.16.0",
+            "fileVersion": "10.0.16.0"
+          }
+        }
+      },
+      "Tmds.LibC/0.2.0": {
+        "runtimeTargets": {
+          "runtimes/linux-arm/lib/netstandard2.0/Tmds.LibC.dll": {
+            "rid": "linux-arm",
+            "assetType": "runtime",
+            "assemblyVersion": "0.2.0.0",
+            "fileVersion": "0.2.0.0"
+          },
+          "runtimes/linux-arm64/lib/netstandard2.0/Tmds.LibC.dll": {
+            "rid": "linux-arm64",
+            "assetType": "runtime",
+            "assemblyVersion": "0.2.0.0",
+            "fileVersion": "0.2.0.0"
+          },
+          "runtimes/linux-x64/lib/netstandard2.0/Tmds.LibC.dll": {
+            "rid": "linux-x64",
+            "assetType": "runtime",
+            "assemblyVersion": "0.2.0.0",
+            "fileVersion": "0.2.0.0"
+          }
+        }
+      },
+      "Aqorin.Phone.Core/0.1.1": {
+        "dependencies": {
+          "Microsoft.Extensions.Logging.Abstractions": "10.0.12"
+        },
+        "runtime": {
+          "Aqorin.Phone.Core.dll": {
+            "assemblyVersion": "0.1.1.0",
+            "fileVersion": "0.1.1.0"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "Aqorin.Phone.Sip/0.1.1": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "BouncyCastle.Cryptography/2.7.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-U+12df8UEWHgBi04YVf/Lgi2dy3SItlIYvHjjEVa/BngCQIzDCDRBk50DDByCfDvSbe5pRNFr3b7UrVK2kMcLw==",
+      "path": "bouncycastle.cryptography/2.7.0",
+      "hashPath": "bouncycastle.cryptography.2.7.0.nupkg.sha512"
+    },
+    "Common.Logging/3.4.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-5eZ/vgEOqzLg4PypZqnJ+wMhhgHyckicbZY4iDxqQ4FtOz0CpdYZ0xQ78aszMzeAJZiLLb5VdR9tPfunVQLz6g==",
+      "path": "common.logging/3.4.1",
+      "hashPath": "common.logging.3.4.1.nupkg.sha512"
+    },
+    "Common.Logging.Core/3.4.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-wLHldZHvxsSD6Ahonfj00/SkfHfKqO+YT6jsUwVm8Rch1REL9IArHAcSLXxYxYfu5/4ydGtmXvOtaH3AkVPu0A==",
+      "path": "common.logging.core/3.4.1",
+      "hashPath": "common.logging.core.3.4.1.nupkg.sha512"
+    },
+    "Concentus/2.2.2": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-2B9YmHPKO+k7YpAAnqmiXwiMJnfjfj1C868RszOll2iZWLnGTAiC1q21L/d7CvTan7T+hyqU8dR0Dcy3cpjVfQ==",
+      "path": "concentus/2.2.2",
+      "hashPath": "concentus.2.2.2.nupkg.sha512"
+    },
+    "DnsClient/1.8.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-RRwtaCXkXWsx0mmsReGDqCbRLtItfUbkRJlet1FpdciVhyMGKcPd57T1+8Jki9ojHlq9fntVhXQroOOgRak8DQ==",
+      "path": "dnsclient/1.8.0",
+      "hashPath": "dnsclient.1.8.0.nupkg.sha512"
+    },
+    "IPNetwork2/2.1.2": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-DZF2SbtyqukkLSzyu0KqcXUBdhDXQ/K3QWM27vlvdPo3W+iI81pgUCNTwyynNyVc5Q9AIn0znFVVhHGbhiofUg==",
+      "path": "ipnetwork2/2.1.2",
+      "hashPath": "ipnetwork2.2.1.2.nupkg.sha512"
+    },
+    "Makaretu.Dns/2.0.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-qe/5w5Q/i2Xz2ZnCq3E49kLAtVFRuuBn40C1mQPWbLDwlHM0KVDzCkFqwxDedv7JgQis66Z9AZKyo1zCTRrdYA==",
+      "path": "makaretu.dns/2.0.1",
+      "hashPath": "makaretu.dns.2.0.1.nupkg.sha512"
+    },
+    "Makaretu.Dns.Multicast/0.27.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-MTMq3vca9yw8sMW0knox/lZcAkDghmH6FVLTRInJZWbuYE99QI/9k9EujsXusWQ8oDySXb/gX92bfZipKehQgw==",
+      "path": "makaretu.dns.multicast/0.27.0",
+      "hashPath": "makaretu.dns.multicast.0.27.0.nupkg.sha512"
+    },
+    "Microsoft.Extensions.DependencyInjection.Abstractions/10.0.12": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-9/qymSh7hVDMGTGwrLz8MRp5zRyXy9adGDOs4HwRdnLil3oZGYuWeZjbmHgCQ9BL1qBroVfgUK3U/nb61617Cw==",
+      "path": "microsoft.extensions.dependencyinjection.abstractions/10.0.12",
+      "hashPath": "microsoft.extensions.dependencyinjection.abstractions.10.0.12.nupkg.sha512"
+    },
+    "Microsoft.Extensions.Logging.Abstractions/10.0.12": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-+24lC4plfbEDNfLAdTV/SWKS7dW+16X4HdydO3R++134kSNTzcbYA4KpR1Hdh6uWisB8Za3AzwyOn+K+NxWIug==",
+      "path": "microsoft.extensions.logging.abstractions/10.0.12",
+      "hashPath": "microsoft.extensions.logging.abstractions.10.0.12.nupkg.sha512"
+    },
+    "SimpleBase/1.3.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-TqqQc+WFg3s10/PdnI2Dio0U7xEmVXhkf+ey4tOGZzjyd054rnNOLNVahJhMYmfBQdS7/jkVqC8xzLm/bkR3EA==",
+      "path": "simplebase/1.3.1",
+      "hashPath": "simplebase.1.3.1.nupkg.sha512"
+    },
+    "SIPSorcery/10.0.16": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-Fs+F4TaZaXFFVRtlsL1FpV4PoRg/aBaa5+FZLrgEIoWLKOtSeCiqxAFRmEzfAw/iL3YfEeFPXw9cUR1epJ6kiw==",
+      "path": "sipsorcery/10.0.16",
+      "hashPath": "sipsorcery.10.0.16.nupkg.sha512"
+    },
+    "SIPSorcery.WebSocketSharp/0.0.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-lBlR9rZmMty2v5kPzCseAyuSv95FSoGuYZJgDy6M/qqZ/xq1ejFnOVEpXMDqBIthiTUOH8rvMcpnva7HXK0ZVw==",
+      "path": "sipsorcery.websocketsharp/0.0.1",
+      "hashPath": "sipsorcery.websocketsharp.0.0.1.nupkg.sha512"
+    },
+    "SIPSorceryMedia.Abstractions/10.0.16": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-TApOBFelC4MZ6xTe2hB5IukSrGRBPQI69VDegyVwGoulTWmGciWJcNDC8Kx2/a8Yv5kwt4AYBVKvT6zNr+sHnA==",
+      "path": "sipsorcerymedia.abstractions/10.0.16",
+      "hashPath": "sipsorcerymedia.abstractions.10.0.16.nupkg.sha512"
+    },
+    "Tmds.LibC/0.2.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-+RvLuNHOLW7cxzgDe9yHLoayBgjsuH2/gJtJnuVMxweKrxxYT6TwQNAmt06SFWpjwk68aRcwwD4FfMMA6tZvVA==",
+      "path": "tmds.libc/0.2.0",
+      "hashPath": "tmds.libc.0.2.0.nupkg.sha512"
+    },
+    "Aqorin.Phone.Core/0.1.1": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

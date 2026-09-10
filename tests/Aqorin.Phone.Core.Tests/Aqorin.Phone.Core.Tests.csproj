@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+    <RootNamespace>Aqorin.Phone.Core.Tests</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../src/Aqorin.Phone.Core/Aqorin.Phone.Core.csproj" />
+    <!-- View models live in the App project; audio buffering helpers in the Audio project. Both are tested here with doubles. -->
+    <ProjectReference Include="../../src/Aqorin.Phone.App/Aqorin.Phone.App.csproj" />
+    <ProjectReference Include="../../src/Aqorin.Phone.Audio/Aqorin.Phone.Audio.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+</Project>

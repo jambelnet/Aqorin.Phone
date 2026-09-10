@@ -1,0 +1,32 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Aqorin.Phone.App.ViewModels"
+             x:Class="Aqorin.Phone.App.Views.DiagnosticsView"
+             x:DataType="vm:DiagnosticsViewModel">
+    <StackPanel Spacing="8">
+        <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto">
+            <TextBlock Grid.Column="0" Classes="caption" Text="{Binding AudioBackendText}" VerticalAlignment="Center" />
+            <Button Grid.Column="1" Content="Copy log" Click="OnCopyLog" Margin="8,0,0,0" FontSize="12" Padding="10,4" MinHeight="28" ToolTip.Tip="Copy all entries to the clipboard" />
+            <Button Grid.Column="2" Content="Save log…" Click="OnSaveLog" Margin="6,0,0,0" FontSize="12" Padding="10,4" MinHeight="28" ToolTip.Tip="Save all entries to a text file" />
+            <Button Grid.Column="3" Content="Audio devices" Command="{Binding RefreshAudioDevicesCommand}" Margin="6,0,0,0" FontSize="12" Padding="10,4" MinHeight="28" />
+            <Button Grid.Column="4" Content="Clear" Command="{Binding ClearCommand}" Margin="6,0,0,0" FontSize="12" Padding="10,4" MinHeight="28" />
+        </Grid>
+        <TextBlock Classes="caption" Text="{Binding Notice}" IsVisible="{Binding Notice, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+        <Border CornerRadius="6" BorderThickness="1" BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" ClipToBounds="True">
+            <ListBox ItemsSource="{Binding Entries}" Height="180" FontFamily="Cascadia Mono,Menlo,Consolas,monospace" FontSize="11"
+                     ScrollViewer.HorizontalScrollBarVisibility="Auto" Padding="4" SelectionMode="Multiple">
+                <ListBox.Styles>
+                    <Style Selector="ListBoxItem">
+                        <Setter Property="Padding" Value="6,2" />
+                        <Setter Property="MinHeight" Value="20" />
+                    </Style>
+                </ListBox.Styles>
+                <ListBox.ItemTemplate>
+                    <DataTemplate x:DataType="x:String">
+                        <TextBlock Text="{Binding}" TextWrapping="NoWrap" />
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </Border>
+    </StackPanel>
+</UserControl>

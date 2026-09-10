@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Aqorin.Phone.Core</RootNamespace>
+    <Description>Domain model, state machines and application-owned abstractions for Aqorin.Phone. No SIP or audio library dependencies.</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="Aqorin.Phone.Core.Tests" />
+  </ItemGroup>
+</Project>

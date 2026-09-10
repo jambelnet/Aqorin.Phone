@@ -1,0 +1,103 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+
+jobs:
+  test:
+    name: Build & unit tests (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Linux audio runtime dependencies (for the PortAudio smoke test)
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends libasound2t64 libjack0 || sudo apt-get install -y --no-install-recommends libasound2 libjack0
+
+      - name: Restore
+        run: dotnet restore Aqorin.Phone.sln
+
+      - name: Build
+        run: dotnet build Aqorin.Phone.sln --configuration Release --no-restore
+
+      - name: Unit tests (integration tests are opt-in and excluded)
+        run: >
+          dotnet test Aqorin.Phone.sln --configuration Release --no-build
+          --filter "Category!=Integration"
+          --logger "trx;LogFileName=results.trx"
+          --results-directory TestResults
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ matrix.os }}
+          path: TestResults
+
+  publish:
+    name: Publish check (${{ matrix.rid }})
+    needs: test
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - rid: win-x64
+            os: windows-latest
+            native: portaudio.dll
+          - rid: linux-x64
+            os: ubuntu-latest
+            native: libportaudio.so
+          - rid: osx-x64
+            os: macos-latest
+            native: libportaudio.dylib
+          - rid: osx-arm64
+            os: macos-latest
+            native: libportaudio.dylib
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Publish ${{ matrix.rid }}
+        run: >
+          dotnet publish src/Aqorin.Phone.App/Aqorin.Phone.App.csproj
+          --configuration Release --runtime ${{ matrix.rid }} --self-contained true
+          --output publish/${{ matrix.rid }}
+
+      - name: Verify publish output contains the app and the native PortAudio library
+        shell: bash
+        run: |
+          set -euo pipefail
+          out="publish/${{ matrix.rid }}"
+          ls -la "$out" | head -50
+          test -f "$out/Aqorin.Phone.dll"
+          if [[ "${{ matrix.rid }}" == win-* ]]; then test -f "$out/Aqorin.Phone.exe"; else test -f "$out/Aqorin.Phone"; fi
+          test -f "$out/${{ matrix.native }}" || { echo "native library ${{ matrix.native }} missing from publish output"; exit 1; }
+          echo "OK: ${{ matrix.rid }} publish output verified"
+
+      - name: Upload publish output
+        uses: actions/upload-artifact@v4
+        with:
+          name: Aqorin.Phone-${{ matrix.rid }}
+          path: publish/${{ matrix.rid }}
