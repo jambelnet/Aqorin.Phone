@@ -78,13 +78,10 @@ public sealed partial class MainWindowViewModel : ViewModelBase
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(ThemeButtonText))]
-    [NotifyPropertyChangedFor(nameof(ThemeIcon))]
     [NotifyPropertyChangedFor(nameof(ThemeToolTip))]
     public partial bool IsDarkTheme { get; set; }
 
     public string ThemeButtonText => IsDarkTheme ? "Light theme" : "Dark theme";
-
-    public string ThemeIcon => IsDarkTheme ? "\uE708" : "\uE706";
 
     public string ThemeToolTip => IsDarkTheme ? "Switch to light theme" : "Switch to dark theme";
 

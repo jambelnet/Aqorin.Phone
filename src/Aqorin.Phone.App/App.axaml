@@ -10,12 +10,14 @@
                 <SolidColorBrush x:Key="PanelSurfaceBrush" Color="#FAFCFF" />
                 <SolidColorBrush x:Key="PanelStrokeBrush" Color="#D9E4F0" />
                 <SolidColorBrush x:Key="SubtleButtonBrush" Color="#EEF3F8" />
+                <SolidColorBrush x:Key="IconForegroundBrush" Color="#111827" />
             </ResourceDictionary>
             <ResourceDictionary x:Key="Dark">
                 <SolidColorBrush x:Key="AppSurfaceBrush" Color="#0B121A" />
                 <SolidColorBrush x:Key="PanelSurfaceBrush" Color="#111B26" />
                 <SolidColorBrush x:Key="PanelStrokeBrush" Color="#263747" />
                 <SolidColorBrush x:Key="SubtleButtonBrush" Color="#1F2B38" />
+                <SolidColorBrush x:Key="IconForegroundBrush" Color="#F8FAFC" />
             </ResourceDictionary>
         </ResourceDictionary.ThemeDictionaries>
         <Color x:Key="SystemAccentColor">#DC2626</Color>
