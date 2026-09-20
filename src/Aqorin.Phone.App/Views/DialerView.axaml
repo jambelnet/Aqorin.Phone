@@ -46,8 +46,13 @@
                         </ItemsControl.ItemsPanel>
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Button Classes="dialPadButton" Command="{Binding #DialerRoot.DataContext.AppendDigitCommand}" CommandParameter="{Binding}">
-                                    <TextBlock Text="{Binding Value}" Classes="digit" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center" />
+                                <Button Classes="dialPadButton"
+                                        Click="KeypadButton_OnClick">
+                                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="0">
+                                        <TextBlock Text="{Binding Value}" Classes="digit" HorizontalAlignment="Center" TextAlignment="Center" />
+                                        <TextBlock Text="{Binding Alternates}" Classes="keyLetters" IsVisible="{Binding HasAlternates}"
+                                                   HorizontalAlignment="Center" TextAlignment="Center" />
+                                    </StackPanel>
                                 </Button>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>

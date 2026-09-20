@@ -50,17 +50,17 @@ public sealed partial class DialerViewModel : ViewModelBase, IDisposable
 
     public IReadOnlyList<KeypadButton> KeypadButtons { get; } =
     [
-        new("1"),
-        new("2"),
-        new("3"),
-        new("4"),
-        new("5"),
-        new("6"),
-        new("7"),
-        new("8"),
-        new("9"),
+        new("1", ".,?!"),
+        new("2", "ABC"),
+        new("3", "DEF"),
+        new("4", "GHI"),
+        new("5", "JKL"),
+        new("6", "MNO"),
+        new("7", "PQRS"),
+        new("8", "TUV"),
+        new("9", "WXYZ"),
         new("*"),
-        new("0"),
+        new("0", "+"),
         new("#")
     ];
 
@@ -243,12 +243,23 @@ public sealed partial class DialerViewModel : ViewModelBase, IDisposable
     [RelayCommand]
     private void AppendDigit(KeypadButton key)
     {
-        if (IsInCall)
-        {
-            return;
-        }
+        AppendKeypadValue(key.Value);
+    }
 
-        Destination += key.Value;
+    public void AppendKeypadValue(string value)
+    {
+        if (!IsInCall)
+        {
+            Destination += value;
+        }
+    }
+
+    public void ReplaceLastKeypadValue(string value)
+    {
+        if (!IsInCall && Destination.Length > 0)
+        {
+            Destination = Destination[..^1] + value;
+        }
     }
 
     partial void OnSelectedContactFilterChanged(ContactFilter value) => RefreshVisibleContacts();
@@ -710,7 +721,10 @@ public enum ContactFilter
     All
 }
 
-public sealed record KeypadButton(string Value);
+public sealed record KeypadButton(string Value, string Alternates = "")
+{
+    public bool HasAlternates => Alternates.Length > 0;
+}
 
 public sealed record ContactItem(string Name, string Number, bool IsFavorite, bool IsAvailable)
 {
