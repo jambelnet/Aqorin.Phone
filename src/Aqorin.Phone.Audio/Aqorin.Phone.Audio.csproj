@@ -2,6 +2,7 @@
   <PropertyGroup>
     <RootNamespace>Aqorin.Phone.Audio</RootNamespace>
     <Description>PortAudio-based microphone/speaker implementation of the application-owned audio abstractions.</Description>
+    <Version>0.1.2</Version>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../Aqorin.Phone.Core/Aqorin.Phone.Core.csproj" />

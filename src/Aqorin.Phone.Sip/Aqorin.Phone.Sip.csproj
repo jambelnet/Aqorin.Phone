@@ -2,6 +2,7 @@
   <PropertyGroup>
     <RootNamespace>Aqorin.Phone.Sip</RootNamespace>
     <Description>SIPSorcery-based implementation of registration, call signalling and RTP audio media sessions.</Description>
+    <Version>0.1.2</Version>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../Aqorin.Phone.Core/Aqorin.Phone.Core.csproj" />

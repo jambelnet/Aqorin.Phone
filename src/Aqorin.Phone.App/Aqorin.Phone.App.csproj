@@ -8,6 +8,7 @@
     <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
     <Description>Cross-platform SIP softphone for home routers and local PBXes (Avalonia UI).</Description>
+    <Version>0.1.2</Version>
   </PropertyGroup>
   <ItemGroup>
     <AvaloniaResource Include="Assets/**" />
