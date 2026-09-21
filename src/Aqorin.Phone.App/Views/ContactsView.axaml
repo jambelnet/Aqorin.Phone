@@ -43,9 +43,9 @@
                     <Border Grid.Row="2" Classes="card" IsVisible="{Binding IsAddingContact}">
                         <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto" RowSpacing="8">
                             <TextBlock Classes="label" Text="Name" Margin="0,0,0,2" />
-                            <TextBox Grid.Row="1" Text="{Binding NewContactName}" Watermark="Sarah Mitchell" />
+                            <TextBox Grid.Row="1" Text="{Binding NewContactName}" PlaceholderText="Sarah Mitchell" />
                             <TextBlock Grid.Row="2" Classes="label" Text="Number" Margin="0,4,0,2" />
-                            <TextBox Grid.Row="3" Text="{Binding NewContactNumber}" Watermark="1003 or +49..." />
+                            <TextBox Grid.Row="3" Text="{Binding NewContactNumber}" PlaceholderText="1003 or +49..." />
                             <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8" Margin="0,8,0,0">
                                 <TextBlock Classes="error" Text="{Binding ContactError}" IsVisible="{Binding HasContactError}" VerticalAlignment="Center" />
                                 <Button Content="Cancel" Command="{Binding CancelAddContactCommand}" />

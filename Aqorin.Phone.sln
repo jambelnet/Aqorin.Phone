@@ -1,4 +1,4 @@
-
+﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
@@ -20,6 +20,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aqorin.Phone.Sip.Tests", "tests\Aqorin.Phone.Sip.Tests\Aqorin.Phone.Sip.Tests.csproj", "{107D8B1D-A441-49C3-B759-06242BC1D68B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aqorin.Phone.IntegrationTests", "tests\Aqorin.Phone.IntegrationTests\Aqorin.Phone.IntegrationTests.csproj", "{5E0203A6-AD72-4466-B006-5DF0818268CA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aqorin.Phone.Mobile", "src\Aqorin.Phone.Mobile\Aqorin.Phone.Mobile.csproj", "{688A7226-1AC4-4C17-BB29-247A1F9258AF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -115,6 +117,18 @@ Global
 		{5E0203A6-AD72-4466-B006-5DF0818268CA}.Release|x64.Build.0 = Release|Any CPU
 		{5E0203A6-AD72-4466-B006-5DF0818268CA}.Release|x86.ActiveCfg = Release|Any CPU
 		{5E0203A6-AD72-4466-B006-5DF0818268CA}.Release|x86.Build.0 = Release|Any CPU
+		{688A7226-1AC4-4C17-BB29-247A1F9258AF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{688A7226-1AC4-4C17-BB29-247A1F9258AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{688A7226-1AC4-4C17-BB29-247A1F9258AF}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{688A7226-1AC4-4C17-BB29-247A1F9258AF}.Debug|x64.Build.0 = Debug|Any CPU
+		{688A7226-1AC4-4C17-BB29-247A1F9258AF}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{688A7226-1AC4-4C17-BB29-247A1F9258AF}.Debug|x86.Build.0 = Debug|Any CPU
+		{688A7226-1AC4-4C17-BB29-247A1F9258AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{688A7226-1AC4-4C17-BB29-247A1F9258AF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{688A7226-1AC4-4C17-BB29-247A1F9258AF}.Release|x64.ActiveCfg = Release|Any CPU
+		{688A7226-1AC4-4C17-BB29-247A1F9258AF}.Release|x64.Build.0 = Release|Any CPU
+		{688A7226-1AC4-4C17-BB29-247A1F9258AF}.Release|x86.ActiveCfg = Release|Any CPU
+		{688A7226-1AC4-4C17-BB29-247A1F9258AF}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -127,5 +141,6 @@ Global
 		{C2AA6F23-13FA-4E2D-9CBD-6C064874A551} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 		{107D8B1D-A441-49C3-B759-06242BC1D68B} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 		{5E0203A6-AD72-4466-B006-5DF0818268CA} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
+		{688A7226-1AC4-4C17-BB29-247A1F9258AF} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 	EndGlobalSection
 EndGlobal

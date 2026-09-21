@@ -1,6 +1,6 @@
 # Aqorin.Phone
 
-A compact cross-platform SIP softphone (Windows, macOS, Linux) for home routers and local PBXes that expose a
+A compact cross-platform SIP softphone (Windows, macOS, Linux, Android, and iOS) for home routers and local PBXes that expose a
 standard SIP registrar. Built with .NET 10, C#, Avalonia UI 12 (MVVM), SIPSorcery for SIP/SDP/RTP and PortAudio
 for microphone/speaker access.
 
@@ -21,6 +21,7 @@ Aqorin.Phone.sln
 ├─ src/Aqorin.Phone.Sip       SIPSorcery adapters: registration, call signalling, RTP media session
 ├─ src/Aqorin.Phone.Audio     PortAudio implementation of IAudioDeviceService (capture/playback streams)
 ├─ src/Aqorin.Phone.App       Avalonia UI, view models, DI composition root, settings store
+├─ src/Aqorin.Phone.Mobile    Android/iOS Avalonia host; Android native audio implementation
 └─ tests/
    ├─ Aqorin.Phone.Core.Tests   state machines, dial plan, validation, redaction, audio helpers, view models
    ├─ Aqorin.Phone.Sip.Tests    registration & call services driven through fake SIP seams
@@ -90,6 +91,15 @@ dotnet build
 ```bash
 dotnet run --project src/Aqorin.Phone.App
 ```
+
+Build the Android application from the same solution:
+
+```bash
+dotnet build src/Aqorin.Phone.Mobile/Aqorin.Phone.Mobile.csproj -f net10.0-android
+```
+
+The iOS target requires Apple tooling and signing. Android uses its native capture/playback service; iOS audio
+capture/playback is not implemented yet.
 
 On first start the **Settings** tab is shown. Diagnostics (redacted log, audio devices) are in the expander at
 the bottom of the window.

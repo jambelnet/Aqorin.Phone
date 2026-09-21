@@ -1,0 +1,72 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework />
+    <TargetFrameworks>net10.0-android;net10.0-ios</TargetFrameworks>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>Aqorin.Phone.Mobile</RootNamespace>
+    <AssemblyName>Aqorin.Phone.Mobile</AssemblyName>
+    <ApplicationId>com.aqorin.phone</ApplicationId>
+    <ApplicationTitle>Aqorin Phone</ApplicationTitle>
+    <ApplicationDisplayVersion>0.1.5</ApplicationDisplayVersion>
+    <ApplicationVersion>5</ApplicationVersion>
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+    <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">23.0</SupportedOSPlatformVersion>
+    <RuntimeIdentifiers Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">android-arm;android-arm64;android-x64</RuntimeIdentifiers>
+    <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">15.0</SupportedOSPlatformVersion>
+    <AndroidManifest Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">Platforms\Android\AndroidManifest.xml</AndroidManifest>
+    <AppBundleManifest Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">Platforms\iOS\Info.plist</AppBundleManifest>
+    <MtouchLink Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">SdkOnly</MtouchLink>
+    <CodesignKey Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">Apple Development</CodesignKey>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug' and $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
+    <EmbedAssembliesIntoApk>true</EmbedAssembliesIntoApk>
+  </PropertyGroup>
+
+  <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
+    <Compile Remove="Platforms\iOS\**\*.cs" />
+  </ItemGroup>
+
+  <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">
+    <Compile Remove="Platforms\Android\**\*.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Aqorin.Phone.Core\Aqorin.Phone.Core.csproj" />
+    <ProjectReference Include="..\Aqorin.Phone.Sip\Aqorin.Phone.Sip.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" />
+    <PackageReference Include="Avalonia.Themes.Fluent" />
+    <PackageReference Include="Avalonia.Fonts.Inter" />
+    <PackageReference Include="Avalonia.Android" Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'" />
+    <PackageReference Include="Avalonia.iOS" Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'" />
+    <PackageReference Include="CommunityToolkit.Mvvm" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+    <PackageReference Include="Microsoft.Extensions.Logging" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AvaloniaResource Include="..\Aqorin.Phone.App\Assets\**" LinkBase="Assets" />
+    <AvaloniaXaml Include="..\Aqorin.Phone.App\Views\ActiveCallView.axaml" Link="Views\ActiveCallView.axaml" />
+    <AvaloniaXaml Include="..\Aqorin.Phone.App\Views\AccountView.axaml" Link="Views\AccountView.axaml" />
+    <AvaloniaXaml Include="..\Aqorin.Phone.App\Views\ContactsView.axaml" Link="Views\ContactsView.axaml" />
+    <AvaloniaXaml Include="..\Aqorin.Phone.App\Views\DiagnosticsView.axaml" Link="Views\DiagnosticsView.axaml" />
+    <AvaloniaXaml Include="..\Aqorin.Phone.App\Views\DialerView.axaml" Link="Views\DialerView.axaml" />
+    <AvaloniaXaml Include="..\Aqorin.Phone.App\Views\RecentsView.axaml" Link="Views\RecentsView.axaml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\Aqorin.Phone.App\ViewModels\*.cs" Link="ViewModels\%(Filename)%(Extension)" />
+    <Compile Include="..\Aqorin.Phone.App\Services\*.cs" Link="Services\%(Filename)%(Extension)" Exclude="..\Aqorin.Phone.App\Services\AppServices.cs;..\Aqorin.Phone.App\Services\PasswordProtector.cs" />
+    <Compile Include="..\Aqorin.Phone.App\Views\ActiveCallView.axaml.cs" Link="Views\ActiveCallView.axaml.cs" />
+    <Compile Include="..\Aqorin.Phone.App\Views\AccountView.axaml.cs" Link="Views\AccountView.axaml.cs" />
+    <Compile Include="..\Aqorin.Phone.App\Views\ContactsView.axaml.cs" Link="Views\ContactsView.axaml.cs" />
+    <Compile Include="..\Aqorin.Phone.App\Views\Converters.cs" Link="Views\Converters.cs" />
+    <Compile Include="..\Aqorin.Phone.App\Views\DiagnosticsView.axaml.cs" Link="Views\DiagnosticsView.axaml.cs" />
+    <Compile Include="..\Aqorin.Phone.App\Views\DialerView.axaml.cs" Link="Views\DialerView.axaml.cs" />
+    <Compile Include="..\Aqorin.Phone.App\Views\RecentsView.axaml.cs" Link="Views\RecentsView.axaml.cs" />
+  </ItemGroup>
+</Project>

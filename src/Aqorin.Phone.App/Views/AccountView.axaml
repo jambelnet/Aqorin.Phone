@@ -47,7 +47,7 @@
                     <Grid ColumnDefinitions="*,10,*">
                         <StackPanel Grid.Column="0">
                             <TextBlock Classes="label" Text="Username" />
-                            <TextBox Text="{Binding Username}" PlaceholderText="620" IsEnabled="{Binding CanEditSettings}" />
+                            <TextBox Text="{Binding Username}" PlaceholderText="SIP username" IsEnabled="{Binding CanEditSettings}" />
                         </StackPanel>
                         <StackPanel Grid.Column="2">
                             <TextBlock Classes="label" Text="Display name (optional)" />

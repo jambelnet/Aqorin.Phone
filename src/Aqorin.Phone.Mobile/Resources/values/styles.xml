@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <color name="aqorin_splash_background">#032041</color>
+
+  <style name="Theme.AqorinPhone.Base" parent="Theme.AppCompat.Light.NoActionBar">
+    <item name="android:windowNoTitle">true</item>
+    <item name="android:windowActionBar">false</item>
+    <item name="android:windowBackground">@color/aqorin_splash_background</item>
+    <item name="android:windowLightStatusBar">false</item>
+    <item name="android:statusBarColor">@color/aqorin_splash_background</item>
+    <item name="android:navigationBarColor">@color/aqorin_splash_background</item>
+  </style>
+
+  <style name="Theme.AqorinPhone" parent="Theme.AqorinPhone.Base" />
+</resources>

@@ -60,7 +60,22 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     public DiagnosticsViewModel Diagnostics { get; }
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsDialTabSelected))]
+    [NotifyPropertyChangedFor(nameof(IsCallTabSelected))]
+    [NotifyPropertyChangedFor(nameof(IsContactsTabSelected))]
+    [NotifyPropertyChangedFor(nameof(IsRecentsTabSelected))]
+    [NotifyPropertyChangedFor(nameof(IsSettingsTabSelected))]
     public partial int SelectedTabIndex { get; set; }
+
+    public bool IsDialTabSelected => SelectedTabIndex == 0;
+
+    public bool IsCallTabSelected => SelectedTabIndex == 1;
+
+    public bool IsContactsTabSelected => SelectedTabIndex == 2;
+
+    public bool IsRecentsTabSelected => SelectedTabIndex == 3;
+
+    public bool IsSettingsTabSelected => SelectedTabIndex == 4;
 
     [ObservableProperty]
     public partial string StatusBarText { get; set; } = string.Empty;
@@ -113,6 +128,21 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         ApplyTheme();
         await SavePreferencesAsync();
     }
+
+    [RelayCommand]
+    private void ShowDialTab() => SelectedTabIndex = 0;
+
+    [RelayCommand]
+    private void ShowCallTab() => SelectedTabIndex = 1;
+
+    [RelayCommand]
+    private void ShowContactsTab() => SelectedTabIndex = 2;
+
+    [RelayCommand]
+    private void ShowRecentsTab() => SelectedTabIndex = 3;
+
+    [RelayCommand]
+    private void ShowSettingsTab() => SelectedTabIndex = 4;
 
     public async Task LoadPreferencesAsync(CancellationToken cancellationToken = default)
     {

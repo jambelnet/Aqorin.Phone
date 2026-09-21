@@ -1,0 +1,86 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Aqorin.Phone.App.ViewModels"
+             xmlns:views="using:Aqorin.Phone.App.Views"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="390" d:DesignHeight="844"
+             x:Class="Aqorin.Phone.Mobile.Views.MainView"
+             x:DataType="vm:MainWindowViewModel"
+             TopLevel.AutoSafeAreaPadding="True"
+             Background="{DynamicResource AppSurfaceBrush}">
+    <Grid RowDefinitions="*,Auto" ClipToBounds="True" MinWidth="0">
+        <Grid Grid.Row="0" MinWidth="0" ClipToBounds="True">
+            <TabControl x:Name="MainTabs" SelectedIndex="{Binding SelectedTabIndex}" MinWidth="0"
+                        IsVisible="{Binding !Dialer.IsIncoming}">
+                <TabItem Header="Dial">
+                    <Grid>
+                        <views:DialerView DataContext="{Binding Dialer}" />
+                    </Grid>
+                </TabItem>
+                <TabItem Header="Call">
+                    <Grid>
+                        <views:ActiveCallView DataContext="{Binding Dialer}" />
+                    </Grid>
+                </TabItem>
+                <TabItem Header="Contacts">
+                    <Grid>
+                        <views:ContactsView DataContext="{Binding Dialer}" />
+                    </Grid>
+                </TabItem>
+                <TabItem Header="Recents">
+                    <Grid>
+                        <views:RecentsView DataContext="{Binding Dialer}" />
+                    </Grid>
+                </TabItem>
+                <TabItem Header="Settings">
+                    <Grid>
+                        <views:AccountView DataContext="{Binding Account}" />
+                    </Grid>
+                </TabItem>
+            </TabControl>
+
+            <Grid IsVisible="{Binding Dialer.IsIncoming}" MinWidth="0" ClipToBounds="True">
+                <views:ActiveCallView DataContext="{Binding Dialer}" />
+            </Grid>
+        </Grid>
+
+        <Border Grid.Row="1" Padding="12,8" MinHeight="58" BorderThickness="0,1,0,0"
+                BorderBrush="{DynamicResource PanelStrokeBrush}"
+                Background="{DynamicResource PanelSurfaceBrush}">
+            <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="12">
+                <StackPanel Grid.Row="0" Grid.Column="0" Spacing="3" VerticalAlignment="Center">
+                    <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                        <Ellipse Width="9" Height="9" VerticalAlignment="Center"
+                                 Fill="{Binding StatusIsGood, Converter={x:Static views:Converters.GoodBadBrush}}" />
+                        <TextBlock Text="{Binding StatusBarText}" Classes="caption" TextWrapping="NoWrap"
+                                   VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                    </StackPanel>
+                    <TextBlock Text="{Binding AudioWarning}" Classes="error" IsVisible="{Binding HasAudioWarning}" />
+                </StackPanel>
+                <Button Grid.Row="0" Grid.Column="1" Classes="themeToggle"
+                        Command="{Binding ToggleThemeCommand}" ToolTip.Tip="{Binding ThemeToolTip}"
+                        Focusable="False" VerticalAlignment="Center">
+                    <Grid Width="20" Height="20" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <Viewbox Stretch="Uniform" IsVisible="{Binding IsDarkTheme}">
+                            <Canvas Width="24" Height="24">
+                                <Ellipse Width="8" Height="8" Canvas.Left="8" Canvas.Top="8"
+                                         Stroke="{DynamicResource IconForegroundBrush}" StrokeThickness="2" />
+                                <Path Stroke="{DynamicResource IconForegroundBrush}" StrokeThickness="2"
+                                      StrokeLineCap="Round"
+                                      Data="M12,2 L12,4 M12,20 L12,22 M2,12 L4,12 M20,12 L22,12 M4.93,4.93 L6.34,6.34 M17.66,17.66 L19.07,19.07 M19.07,4.93 L17.66,6.34 M6.34,17.66 L4.93,19.07" />
+                            </Canvas>
+                        </Viewbox>
+                        <Viewbox Stretch="Uniform" IsVisible="{Binding !IsDarkTheme}">
+                            <Canvas Width="24" Height="24">
+                                <Path Stroke="{DynamicResource IconForegroundBrush}" StrokeThickness="2.3"
+                                      StrokeLineCap="Round"
+                                      Data="M21,12.8 A9,9 0 1,1 11.2,3 A7,7 0 0,0 21,12.8 Z" />
+                            </Canvas>
+                        </Viewbox>
+                    </Grid>
+                </Button>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

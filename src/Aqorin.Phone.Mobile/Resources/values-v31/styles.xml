@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <style name="Theme.AqorinPhone" parent="Theme.AqorinPhone.Base">
+    <item name="android:windowSplashScreenBackground">@color/aqorin_splash_background</item>
+    <item name="android:windowSplashScreenAnimatedIcon">@drawable/aqorin_phone</item>
+    <item name="android:windowSplashScreenIconBackgroundColor">@color/aqorin_splash_background</item>
+  </style>
+</resources>

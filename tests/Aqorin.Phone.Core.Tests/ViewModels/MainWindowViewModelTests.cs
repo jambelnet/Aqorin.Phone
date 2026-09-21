@@ -56,11 +56,30 @@ public class MainWindowViewModelTests
 
         Assert.True(_ringtone.IsPlaying);
         Assert.Equal(1, _ringtone.StartCalls);
+        Assert.True(vm.IsCallTabSelected);
 
         _calls.Set(_calls.CurrentCall with { State = CallState.Active, ConnectedAt = DateTimeOffset.UtcNow, Message = "Connected" });
 
         Assert.False(_ringtone.IsPlaying);
         Assert.True(_ringtone.StopCalls > 0);
+    }
+
+    [Fact]
+    public void Navigation_commands_update_selected_view()
+    {
+        var vm = Create();
+
+        vm.ShowSettingsTabCommand.Execute(null);
+        Assert.True(vm.IsSettingsTabSelected);
+        Assert.False(vm.IsDialTabSelected);
+
+        vm.ShowContactsTabCommand.Execute(null);
+        Assert.True(vm.IsContactsTabSelected);
+        Assert.False(vm.IsSettingsTabSelected);
+
+        vm.ShowDialTabCommand.Execute(null);
+        Assert.True(vm.IsDialTabSelected);
+        Assert.Equal(0, vm.SelectedTabIndex);
     }
 
     [Fact]

@@ -9,8 +9,8 @@
              x:DataType="vm:DialerViewModel"
              x:CompileBindings="False">
     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-        <Grid Margin="18" HorizontalAlignment="Center">
-            <Border Classes="phoneShell">
+        <Grid Margin="12,18" HorizontalAlignment="Stretch" MinWidth="0">
+            <Border Classes="phoneShell" HorizontalAlignment="Stretch" MinWidth="0">
                 <Grid RowDefinitions="Auto,*,Auto,Auto" RowSpacing="20">
                     <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
                         <StackPanel>
@@ -45,24 +45,45 @@
                                    TextAlignment="Center" TextWrapping="Wrap" MaxWidth="340" />
                     </StackPanel>
 
-                    <UniformGrid Grid.Row="2" Columns="3" Rows="1" HorizontalAlignment="Center">
-                        <Button Classes="callControl" Command="{Binding ToggleMuteCommand}" IsEnabled="{Binding IsInCall}">
+                    <Grid Grid.Row="2" ColumnDefinitions="*,*,*" HorizontalAlignment="Stretch" MinWidth="0">
+                        <Button Grid.Column="0" Classes="callControl" HorizontalAlignment="Center"
+                                Command="{Binding ToggleMuteCommand}" IsEnabled="{Binding IsInCall}">
                             <TextBlock Classes="controlText" Text="{Binding MuteButtonText}" />
                         </Button>
-                        <Button Classes="callControl" Command="{Binding ToggleHoldCommand}" IsEnabled="{Binding IsActive}">
+                        <Button Grid.Column="1" Classes="callControl" HorizontalAlignment="Center"
+                                Command="{Binding ToggleHoldCommand}" IsEnabled="{Binding IsActive}">
                             <TextBlock Classes="controlText" Text="{Binding HoldButtonText}" />
                         </Button>
-                        <Button Classes="callControl" Classes.activeControl="{Binding IsSpeakerEnabled}"
-                                Command="{Binding ToggleSpeakerCommand}" IsEnabled="{Binding IsInCall}">
+                        <Button Grid.Column="2" Classes="callControl" Classes.activeControl="{Binding IsSpeakerEnabled}"
+                                HorizontalAlignment="Center" Command="{Binding ToggleSpeakerCommand}" IsEnabled="{Binding IsInCall}">
                             <TextBlock Classes="controlText" Text="{Binding SpeakerButtonText}" />
                         </Button>
-                    </UniformGrid>
+                    </Grid>
 
-                    <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center" Spacing="10">
-                        <Button Classes="success" Content="Answer" Command="{Binding AnswerCommand}" IsVisible="{Binding IsIncoming}" MinWidth="120" />
-                        <Button Classes="danger" Content="Reject" Command="{Binding RejectCommand}" IsVisible="{Binding IsIncoming}" MinWidth="120" />
-                        <Button Classes="hangupWide" Content="Hang up" Command="{Binding HangupCommand}" IsVisible="{Binding ShowHangup}" />
-                    </StackPanel>
+                    <Grid Grid.Row="3" ColumnDefinitions="*,10,*" HorizontalAlignment="Stretch" MinWidth="0">
+                        <Grid Grid.Column="0" IsVisible="{Binding IsIncoming}" Height="44">
+                            <Button Classes="success" Command="{Binding AnswerCommand}" MinWidth="0"
+                                    HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+                            <TextBlock Text="Answer" Foreground="White" FontWeight="SemiBold"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center"
+                                       IsHitTestVisible="False" ZIndex="1" />
+                        </Grid>
+                        <Grid Grid.Column="2" IsVisible="{Binding IsIncoming}" Height="44">
+                            <Button Classes="danger" Command="{Binding RejectCommand}" MinWidth="0"
+                                    HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+                            <TextBlock Text="Reject" Foreground="White" FontWeight="SemiBold"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center"
+                                       IsHitTestVisible="False" ZIndex="1" />
+                        </Grid>
+                        <Grid Grid.ColumnSpan="3" IsVisible="{Binding ShowHangup}" Width="210" Height="52"
+                              HorizontalAlignment="Center">
+                            <Button Classes="hangupWide" Command="{Binding HangupCommand}"
+                                    HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+                            <TextBlock Text="Hang up" Foreground="White" FontWeight="SemiBold"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center"
+                                       IsHitTestVisible="False" ZIndex="1" />
+                        </Grid>
+                    </Grid>
                 </Grid>
             </Border>
         </Grid>
