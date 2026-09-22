@@ -28,7 +28,9 @@ public sealed class SipForegroundService : Service
     private static CallInfo _call = CallInfo.Idle;
     private PowerManager.WakeLock? _wakeLock;
     private WifiManager.WifiLock? _wifiLock;
+    private DeviceIdleReceiver? _deviceIdleReceiver;
     private int _recoveryStarted;
+    private long _lastIdleRefresh;
 
     public static void StartOrUpdate(RegistrationStatus registration, CallInfo call)
     {
@@ -61,6 +63,7 @@ public sealed class SipForegroundService : Service
         base.OnCreate();
         CreateNotificationChannels();
         AcquireAvailabilityLocks();
+        RegisterDeviceIdleReceiver();
     }
 
     public override StartCommandResult OnStartCommand(Intent? intent, StartCommandFlags flags, int startId)
@@ -84,6 +87,7 @@ public sealed class SipForegroundService : Service
 
     public override void OnDestroy()
     {
+        UnregisterDeviceIdleReceiver();
         ReleaseAvailabilityLocks();
         base.OnDestroy();
     }
@@ -157,6 +161,12 @@ public sealed class SipForegroundService : Service
         {
             builder.AddAction(BuildAction("Hang up", ActionHangup, 12));
         }
+        else if (!AndroidBatteryOptimization.IsExempt(this))
+        {
+            builder.AddAction(BuildActivityAction(
+                "Allow background",
+                AndroidBatteryOptimization.CreateRequestPendingIntent(this, 13)));
+        }
 
         return builder.Build();
     }
@@ -194,6 +204,13 @@ public sealed class SipForegroundService : Service
     {
         using var icon = Icon.CreateWithResource(this, global::Android.Resource.Drawable.SymActionCall);
         using var builder = new Notification.Action.Builder(icon, title, ServiceAction(action, requestCode));
+        return builder.Build();
+    }
+
+    private Notification.Action BuildActivityAction(string title, PendingIntent action)
+    {
+        using var icon = Icon.CreateWithResource(this, global::Android.Resource.Drawable.SymActionCall);
+        using var builder = new Notification.Action.Builder(icon, title, action);
         return builder.Build();
     }
 
@@ -249,6 +266,62 @@ public sealed class SipForegroundService : Service
         }
     }
 
+    private void RegisterDeviceIdleReceiver()
+    {
+        if (!OperatingSystem.IsAndroidVersionAtLeast(23))
+        {
+            return;
+        }
+
+        _deviceIdleReceiver = new DeviceIdleReceiver(this);
+#pragma warning disable CA1422 // This overload is valid for protected system broadcasts.
+        RegisterReceiver(_deviceIdleReceiver, new IntentFilter(PowerManager.ActionDeviceIdleModeChanged));
+#pragma warning restore CA1422
+    }
+
+    private void UnregisterDeviceIdleReceiver()
+    {
+        if (_deviceIdleReceiver is null)
+        {
+            return;
+        }
+
+        try
+        {
+            UnregisterReceiver(_deviceIdleReceiver);
+        }
+        catch (Java.Lang.IllegalArgumentException)
+        {
+        }
+
+        _deviceIdleReceiver.Dispose();
+        _deviceIdleReceiver = null;
+    }
+
+    private void OnDeviceIdleModeChanged()
+    {
+        if (GetSystemService(PowerService) is PowerManager { IsDeviceIdleMode: true })
+        {
+            return;
+        }
+
+        var now = System.Environment.TickCount64;
+        if (now - Interlocked.Read(ref _lastIdleRefresh) < 30_000)
+        {
+            return;
+        }
+
+        Interlocked.Exchange(ref _lastIdleRefresh, now);
+        if (AndroidCallRuntime.IsAttached)
+        {
+            _ = AndroidCallRuntime.RefreshRegistrationAsync();
+        }
+        else
+        {
+            RestoreRuntime();
+        }
+    }
+
     private void ReleaseAvailabilityLocks()
     {
         if (_wakeLock?.IsHeld == true)
@@ -265,5 +338,16 @@ public sealed class SipForegroundService : Service
         _wifiLock?.Dispose();
         _wakeLock = null;
         _wifiLock = null;
+    }
+
+    private sealed class DeviceIdleReceiver(SipForegroundService owner) : BroadcastReceiver
+    {
+        public override void OnReceive(Context? context, Intent? intent)
+        {
+            if (intent?.Action == PowerManager.ActionDeviceIdleModeChanged)
+            {
+                owner.OnDeviceIdleModeChanged();
+            }
+        }
     }
 }

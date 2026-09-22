@@ -11,6 +11,7 @@ internal sealed class FakeRegistrationService : ISipRegistrationService
     public event EventHandler<RegistrationStatus>? StatusChanged;
     public List<SipAccount> RegisterCalls { get; } = [];
     public int UnregisterCalls { get; private set; }
+    public int RefreshCalls { get; private set; }
     public Exception? ThrowOnRegister { get; set; }
 
     public Task RegisterAsync(SipAccount account, CancellationToken cancellationToken = default)
@@ -30,6 +31,12 @@ internal sealed class FakeRegistrationService : ISipRegistrationService
     {
         UnregisterCalls++;
         Set(RegistrationStatus.Disconnected);
+        return Task.CompletedTask;
+    }
+
+    public Task RefreshAsync(CancellationToken cancellationToken = default)
+    {
+        RefreshCalls++;
         return Task.CompletedTask;
     }
 

@@ -184,6 +184,40 @@ public sealed class SipRegistrationService : ISipRegistrationService
         }
     }
 
+    public async Task RefreshAsync(CancellationToken cancellationToken = default)
+    {
+        ObjectDisposedException.ThrowIf(_disposed, this);
+        await _operation.WaitAsync(cancellationToken).ConfigureAwait(false);
+        try
+        {
+            if (_status.State != RegistrationState.Registered || _lifetime is null)
+            {
+                return;
+            }
+
+            ISipRegistrationClient? old;
+            lock (_gate)
+            {
+                old = _client;
+                _client = null;
+            }
+
+            old?.Stop(sendUnregister: false);
+            old?.Dispose();
+            Publish(new RegistrationStatus
+            {
+                State = RegistrationState.Registering,
+                Message = "Refreshing registration…",
+                AddressOfRecord = _account?.Settings.AddressOfRecord,
+            });
+            await AttemptAsync(_lifetime.Token, cancellationToken).ConfigureAwait(false);
+        }
+        finally
+        {
+            _operation.Release();
+        }
+    }
+
     public async ValueTask DisposeAsync()
     {
         if (_disposed)
@@ -599,35 +633,7 @@ public sealed class SipRegistrationService : ISipRegistrationService
             {
                 await Task.Delay(TimeSpan.FromSeconds(2), debounce.Token).ConfigureAwait(false);
                 _logger.LogInformation("Network change detected; refreshing registration.");
-                await _operation.WaitAsync(debounce.Token).ConfigureAwait(false);
-                try
-                {
-                    if (_status.State != RegistrationState.Registered)
-                    {
-                        return;
-                    }
-
-                    ISipRegistrationClient? old;
-                    lock (_gate)
-                    {
-                        old = _client;
-                        _client = null;
-                    }
-
-                    old?.Stop(sendUnregister: false);
-                    old?.Dispose();
-                    Publish(new RegistrationStatus
-                    {
-                        State = RegistrationState.Registering,
-                        Message = "Network changed; re-registering…",
-                        AddressOfRecord = _account?.Settings.AddressOfRecord,
-                    });
-                    await AttemptAsync(lifetime.Value, CancellationToken.None).ConfigureAwait(false);
-                }
-                finally
-                {
-                    _operation.Release();
-                }
+                await RefreshAsync(debounce.Token).ConfigureAwait(false);
             }
             catch (OperationCanceledException)
             {

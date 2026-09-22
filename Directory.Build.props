@@ -9,7 +9,7 @@
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     <Authors>Aqorin.Phone contributors</Authors>
     <Product>Aqorin.Phone</Product>
-    <Version>0.1.7</Version>
+    <Version>0.1.8</Version>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
     <RollForward>LatestMinor</RollForward>
   </PropertyGroup>

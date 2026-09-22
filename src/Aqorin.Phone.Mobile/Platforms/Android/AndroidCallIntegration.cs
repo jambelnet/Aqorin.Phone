@@ -32,7 +32,7 @@ public sealed class AndroidCallIntegration : IMobileCallIntegration
         }
 
         _started = true;
-        AndroidCallRuntime.Attach(_calls, _logger);
+        AndroidCallRuntime.Attach(_registration, _calls, _logger);
         _registration.StatusChanged += OnRegistrationChanged;
         _calls.CallChanged += OnCallChanged;
         if (_registration.Status.State != RegistrationState.Disconnected || _calls.CurrentCall.IsInProgress)
@@ -56,8 +56,14 @@ public sealed class AndroidCallIntegration : IMobileCallIntegration
         return ValueTask.CompletedTask;
     }
 
-    private void OnRegistrationChanged(object? sender, RegistrationStatus status) =>
+    private void OnRegistrationChanged(object? sender, RegistrationStatus status)
+    {
         Publish(status, _calls.CurrentCall);
+        if (status.IsRegistered)
+        {
+            MainActivity.RequestBackgroundCallingAccess();
+        }
+    }
 
     private void OnCallChanged(object? sender, CallInfo call) =>
         Publish(_registration.Status, call);
@@ -79,6 +85,7 @@ public sealed class AndroidCallIntegration : IMobileCallIntegration
 internal static class AndroidCallRuntime
 {
     private static readonly object Gate = new();
+    private static ISipRegistrationService? _registration;
     private static ICallService? _calls;
     private static ILogger? _logger;
 
@@ -93,10 +100,11 @@ internal static class AndroidCallRuntime
         }
     }
 
-    public static void Attach(ICallService calls, ILogger logger)
+    public static void Attach(ISipRegistrationService registration, ICallService calls, ILogger logger)
     {
         lock (Gate)
         {
+            _registration = registration;
             _calls = calls;
             _logger = logger;
         }
@@ -108,9 +116,35 @@ internal static class AndroidCallRuntime
         {
             if (ReferenceEquals(_calls, calls))
             {
+                _registration = null;
                 _calls = null;
                 _logger = null;
             }
+        }
+    }
+
+    public static async Task RefreshRegistrationAsync()
+    {
+        ISipRegistrationService? registration;
+        ILogger? logger;
+        lock (Gate)
+        {
+            registration = _registration;
+            logger = _logger;
+        }
+
+        if (registration is null)
+        {
+            return;
+        }
+
+        try
+        {
+            await registration.RefreshAsync().ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            logger?.LogWarning(ex, "SIP registration refresh after Android Doze failed.");
         }
     }
 

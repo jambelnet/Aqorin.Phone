@@ -199,6 +199,22 @@ public class SipRegistrationServiceTests
     }
 
     [Fact]
+    public async Task Explicit_refresh_replaces_the_client_without_unregistering()
+    {
+        await using var service = Create();
+        _clients.ScriptedOutcomes.Enqueue(Success());
+        await service.RegisterAsync(Account);
+        _clients.ScriptedOutcomes.Enqueue(Success());
+
+        await service.RefreshAsync();
+
+        Assert.Equal(RegistrationState.Registered, service.Status.State);
+        Assert.Equal(2, _clients.Created.Count);
+        Assert.Equal([false], _clients.Created[0].StopCalls);
+        Assert.True(_clients.Created[0].Disposed);
+    }
+
+    [Fact]
     public async Task Unregister_sends_zero_expiry_and_releases_everything()
     {
         await using var service = Create();

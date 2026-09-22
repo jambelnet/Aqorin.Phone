@@ -22,6 +22,9 @@ public interface ISipRegistrationService : IAsyncDisposable
     /// </summary>
     Task RegisterAsync(SipAccount account, CancellationToken cancellationToken = default);
 
+    /// <summary>Recreates the active registration client without signing out. No-ops when not registered.</summary>
+    Task RefreshAsync(CancellationToken cancellationToken = default);
+
     /// <summary>Sends a de-registration (Expires: 0) if registered, cancels retries and releases the transport.</summary>
     Task UnregisterAsync(CancellationToken cancellationToken = default);
 }

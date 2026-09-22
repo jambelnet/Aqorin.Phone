@@ -19,10 +19,12 @@ namespace Aqorin.Phone.Mobile.Platforms.Android;
 public sealed class MainActivity : AvaloniaMainActivity
 {
     private const int CallPermissionRequest = 1001;
+    private static WeakReference<MainActivity>? _current;
 
     protected override void OnCreate(Bundle? savedInstanceState)
     {
         base.OnCreate(savedInstanceState);
+        _current = new WeakReference<MainActivity>(this);
 
         if (OperatingSystem.IsAndroidVersionAtLeast(23))
         {
@@ -33,7 +35,24 @@ public sealed class MainActivity : AvaloniaMainActivity
     protected override void OnResume()
     {
         base.OnResume();
+        _current = new WeakReference<MainActivity>(this);
         RefreshForegroundLayout();
+    }
+
+    internal static void RequestBackgroundCallingAccess()
+    {
+        var current = _current;
+        if (current is null || !current.TryGetTarget(out var activity))
+        {
+            return;
+        }
+
+        if (activity.IsFinishing || activity.IsDestroyed)
+        {
+            return;
+        }
+
+        activity.RunOnUiThread(() => AndroidBatteryOptimization.RequestOnce(activity));
     }
 
     public override void OnWindowFocusChanged(bool hasFocus)
