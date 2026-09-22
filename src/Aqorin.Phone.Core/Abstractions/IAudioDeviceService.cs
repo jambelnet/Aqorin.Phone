@@ -31,6 +31,15 @@ public interface IAudioDeviceService : IDisposable
     IAudioPlaybackStream OpenPlayback(AudioStreamRequest request);
 }
 
+/// <summary>
+/// Optional native call-route control implemented by mobile audio backends. Desktop backends can continue
+/// switching concrete output devices through <see cref="AudioStreamRequest.DeviceId"/>.
+/// </summary>
+public interface ICallAudioRouteController
+{
+    Task SetSpeakerEnabledAsync(bool enabled, CancellationToken cancellationToken = default);
+}
+
 /// <summary>Delivers captured frames of exactly <see cref="AudioStreamRequest.FrameSizeSamples"/> samples on an audio thread.</summary>
 public interface IAudioCaptureStream : IDisposable
 {

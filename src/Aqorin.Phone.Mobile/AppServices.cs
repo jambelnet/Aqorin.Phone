@@ -6,8 +6,11 @@ using Aqorin.Phone.Core.Diagnostics;
 using Aqorin.Phone.Sip;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Aqorin.Phone.Mobile.Services;
 #if ANDROID
 using Aqorin.Phone.Mobile.Platforms.Android;
+#elif IOS
+using Aqorin.Phone.Mobile.Platforms.iOS;
 #endif
 
 namespace Aqorin.Phone.App;
@@ -44,6 +47,10 @@ public static class AppServices
 
 #if ANDROID
         services.AddSingleton<IAudioDeviceService, AndroidAudioDeviceService>();
+        services.AddSingleton<IMobileCallIntegration, AndroidCallIntegration>();
+#elif IOS
+        services.AddSingleton<IAudioDeviceService, IosAudioDeviceService>();
+        services.AddSingleton<IMobileCallIntegration, IosCallIntegration>();
 #else
         services.AddSingleton<IAudioDeviceService>(_ =>
             new NullAudioDeviceService("iOS audio capture/playback is not implemented yet."));
@@ -58,12 +65,22 @@ public static class AppServices
 
         var provider = services.BuildServiceProvider(new ServiceProviderOptions { ValidateOnBuild = true, ValidateScopes = true });
         SipServiceCollectionExtensions.UseSipSorceryLogging(provider.GetRequiredService<ILoggerFactory>());
+        provider.GetRequiredService<IMobileCallIntegration>().Start();
         return provider;
     }
 
     public static async Task ShutdownAsync(ServiceProvider services)
     {
         var logger = services.GetRequiredService<ILogger<App>>();
+        try
+        {
+            await services.GetRequiredService<IMobileCallIntegration>().DisposeAsync().ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Mobile call integration shutdown failed.");
+        }
+
         try
         {
             await services.GetRequiredService<AccountViewModel>().SaveConfiguredSettingsAsync().ConfigureAwait(false);

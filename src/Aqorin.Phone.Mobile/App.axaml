@@ -53,7 +53,8 @@
             <Setter Property="FontWeight" Value="SemiBold" />
             <Setter Property="Padding" Value="8,0" />
             <Setter Property="Margin" Value="0" />
-            <Setter Property="MinWidth" Value="58" />
+            <Setter Property="MinWidth" Value="0" />
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
             <Setter Property="MinHeight" Value="48" />
             <Setter Property="HorizontalContentAlignment" Value="Center" />
             <Setter Property="VerticalContentAlignment" Value="Center" />
@@ -124,7 +125,7 @@
             <Setter Property="BorderBrush" Value="{DynamicResource CardStrokeColorDefaultBrush}" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="CornerRadius" Value="8" />
-            <Setter Property="Padding" Value="12,10,12,12" />
+            <Setter Property="Padding" Value="12" />
         </Style>
         <Style Selector="Border.phonePanel">
             <Setter Property="Background" Value="{DynamicResource PanelSurfaceBrush}" />

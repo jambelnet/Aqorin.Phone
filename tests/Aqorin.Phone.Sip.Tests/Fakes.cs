@@ -199,6 +199,7 @@ internal sealed class FakeMediaSession : IAudioMediaSession
     public bool IsClosed { get; private set; }
     public bool IsMuted { get; private set; }
     public bool IsHeld { get; private set; }
+    public bool IsSpeakerEnabled { get; private set; }
     public bool Disposed { get; private set; }
     public string? CloseReason { get; private set; }
     public string? OutputDeviceId { get; private set; }
@@ -220,6 +221,12 @@ internal sealed class FakeMediaSession : IAudioMediaSession
     public Task SetOutputDeviceAsync(string? outputDeviceId)
     {
         OutputDeviceId = outputDeviceId;
+        return Task.CompletedTask;
+    }
+
+    public Task SetSpeakerEnabledAsync(bool enabled)
+    {
+        IsSpeakerEnabled = enabled;
         return Task.CompletedTask;
     }
 

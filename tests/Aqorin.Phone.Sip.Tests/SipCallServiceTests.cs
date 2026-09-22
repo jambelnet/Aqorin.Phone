@@ -333,11 +333,13 @@ public class SipCallServiceTests
         Assert.True(service.IsSpeakerEnabled);
         Assert.True(media.IsMuted);
         Assert.True(media.IsHeld);
-        Assert.Null(media.OutputDeviceId);
+        Assert.True(media.IsSpeakerEnabled);
+        Assert.Equal("headset-output", media.OutputDeviceId);
 
         await service.SetSpeakerAsync(false);
 
         Assert.False(service.IsSpeakerEnabled);
+        Assert.False(media.IsSpeakerEnabled);
         Assert.Equal("headset-output", media.OutputDeviceId);
     }
 

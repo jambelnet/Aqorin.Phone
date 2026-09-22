@@ -9,9 +9,10 @@
              x:Name="ContactsRoot"
              x:DataType="vm:DialerViewModel"
              x:CompileBindings="False">
-    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-        <Grid Margin="18" HorizontalAlignment="Center">
-            <Border Classes="phoneShell">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                  VerticalContentAlignment="Stretch">
+        <Grid Margin="12" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" MinWidth="0">
+            <Border Classes="phoneShell" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" MinWidth="0">
                 <Grid RowDefinitions="Auto,Auto,Auto,*" RowSpacing="16">
                     <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
                         <StackPanel>

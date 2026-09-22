@@ -18,15 +18,15 @@ namespace Aqorin.Phone.Mobile.Platforms.Android;
                            | ConfigChanges.Navigation)]
 public sealed class MainActivity : AvaloniaMainActivity
 {
-    private const int RecordAudioPermissionRequest = 1001;
+    private const int CallPermissionRequest = 1001;
 
     protected override void OnCreate(Bundle? savedInstanceState)
     {
         base.OnCreate(savedInstanceState);
 
-        if (Build.VERSION.SdkInt >= BuildVersionCodes.M)
+        if (OperatingSystem.IsAndroidVersionAtLeast(23))
         {
-            RequestRecordAudioPermission();
+            RequestCallPermissions();
         }
     }
 
@@ -58,11 +58,23 @@ public sealed class MainActivity : AvaloniaMainActivity
     }
 
     [SupportedOSPlatform("android23.0")]
-    private void RequestRecordAudioPermission()
+    private void RequestCallPermissions()
     {
+        var permissions = new List<string>();
         if (CheckSelfPermission(global::Android.Manifest.Permission.RecordAudio) != Permission.Granted)
         {
-            RequestPermissions([global::Android.Manifest.Permission.RecordAudio], RecordAudioPermissionRequest);
+            permissions.Add(global::Android.Manifest.Permission.RecordAudio);
+        }
+
+        if (OperatingSystem.IsAndroidVersionAtLeast(33)
+            && CheckSelfPermission(global::Android.Manifest.Permission.PostNotifications) != Permission.Granted)
+        {
+            permissions.Add(global::Android.Manifest.Permission.PostNotifications);
+        }
+
+        if (permissions.Count > 0)
+        {
+            RequestPermissions([.. permissions], CallPermissionRequest);
         }
     }
 }

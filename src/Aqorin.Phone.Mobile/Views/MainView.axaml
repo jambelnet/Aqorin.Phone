@@ -13,6 +13,11 @@
         <Grid Grid.Row="0" MinWidth="0" ClipToBounds="True">
             <TabControl x:Name="MainTabs" SelectedIndex="{Binding SelectedTabIndex}" MinWidth="0"
                         IsVisible="{Binding !Dialer.IsIncoming}">
+                <TabControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <UniformGrid Columns="5" Rows="1" />
+                    </ItemsPanelTemplate>
+                </TabControl.ItemsPanel>
                 <TabItem Header="Dial">
                     <Grid>
                         <views:DialerView DataContext="{Binding Dialer}" />

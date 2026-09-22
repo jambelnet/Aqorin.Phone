@@ -42,6 +42,8 @@ public interface IAudioMediaSession : IAsyncDisposable
 
     Task SetOutputDeviceAsync(string? outputDeviceId);
 
+    Task SetSpeakerEnabledAsync(bool enabled);
+
     /// <summary>Closes RTP and releases audio devices. Idempotent.</summary>
     Task CloseAsync(string reason);
 }

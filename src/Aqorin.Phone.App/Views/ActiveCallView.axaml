@@ -8,9 +8,10 @@
              x:Class="Aqorin.Phone.App.Views.ActiveCallView"
              x:DataType="vm:DialerViewModel"
              x:CompileBindings="False">
-    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-        <Grid Margin="12,18" HorizontalAlignment="Stretch" MinWidth="0">
-            <Border Classes="phoneShell" HorizontalAlignment="Stretch" MinWidth="0">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                  VerticalContentAlignment="Stretch">
+        <Grid Margin="12" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" MinWidth="0">
+            <Border Classes="phoneShell" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" MinWidth="0">
                 <Grid RowDefinitions="Auto,*,Auto,Auto" RowSpacing="20">
                     <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
                         <StackPanel>

@@ -11,20 +11,20 @@ using CoreAudioDeviceInfo = Aqorin.Phone.Core.Abstractions.AudioDeviceInfo;
 namespace Aqorin.Phone.Mobile.Platforms.Android;
 
 /// <summary>Android microphone and call-audio backend using AudioRecord and AudioTrack.</summary>
-public sealed class AndroidAudioDeviceService : IAudioDeviceService
+public sealed class AndroidAudioDeviceService : IAudioDeviceService, ICallAudioRouteController
 {
     private readonly AudioManager? _audioManager;
     private readonly Mode _originalMode;
+    private readonly object _communicationGate = new();
+    private readonly AudioFocusListener _focusListener = new();
+    private AudioFocusRequestClass? _focusRequest;
+    private int _communicationUsers;
     private bool _disposed;
 
     public AndroidAudioDeviceService()
     {
         _audioManager = global::Android.App.Application.Context.GetSystemService(Context.AudioService) as AudioManager;
         _originalMode = _audioManager?.Mode ?? Mode.Normal;
-        if (_audioManager is not null)
-        {
-            _audioManager.Mode = Mode.InCommunication;
-        }
     }
 
     public AudioBackendInfo Backend { get; } = new(
@@ -48,19 +48,54 @@ public sealed class AndroidAudioDeviceService : IAudioDeviceService
         ObjectDisposedException.ThrowIf(_disposed, this);
         ArgumentNullException.ThrowIfNull(request);
 
-        if (Build.VERSION.SdkInt >= BuildVersionCodes.M && !HasRecordAudioPermission())
+        if (OperatingSystem.IsAndroidVersionAtLeast(23) && !HasRecordAudioPermission())
         {
             throw new AudioDeviceException("Microphone permission has not been granted.");
         }
 
-        return new AndroidAudioCaptureStream(request);
+        return new AndroidAudioCaptureStream(request, BeginCommunication, EndCommunication);
     }
 
     public IAudioPlaybackStream OpenPlayback(AudioStreamRequest request)
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
         ArgumentNullException.ThrowIfNull(request);
-        return new AndroidAudioPlaybackStream(request);
+        return new AndroidAudioPlaybackStream(request, BeginCommunication, EndCommunication);
+    }
+
+    public Task SetSpeakerEnabledAsync(bool enabled, CancellationToken cancellationToken = default)
+    {
+        ObjectDisposedException.ThrowIf(_disposed, this);
+        cancellationToken.ThrowIfCancellationRequested();
+        if (_audioManager is null)
+        {
+            throw new AudioDeviceException("Android audio routing is unavailable.");
+        }
+
+        if (OperatingSystem.IsAndroidVersionAtLeast(31))
+        {
+            if (enabled)
+            {
+                var speaker = _audioManager.AvailableCommunicationDevices
+                    .FirstOrDefault(device => device.Type == AudioDeviceType.BuiltinSpeaker);
+                if (speaker is null || !_audioManager.SetCommunicationDevice(speaker))
+                {
+                    throw new AudioDeviceException("Android could not switch the call to the speaker.");
+                }
+            }
+            else
+            {
+                _audioManager.ClearCommunicationDevice();
+            }
+        }
+        else
+        {
+#pragma warning disable CS0618
+            _audioManager.SpeakerphoneOn = enabled;
+#pragma warning restore CS0618
+        }
+
+        return Task.CompletedTask;
     }
 
     public void Dispose()
@@ -71,28 +106,140 @@ public sealed class AndroidAudioDeviceService : IAudioDeviceService
         }
 
         _disposed = true;
+        EndAllCommunication();
         if (_audioManager is not null)
         {
             _audioManager.Mode = _originalMode;
         }
     }
 
+    private void BeginCommunication()
+    {
+        lock (_communicationGate)
+        {
+            ObjectDisposedException.ThrowIf(_disposed, this);
+            if (++_communicationUsers != 1 || _audioManager is null)
+            {
+                return;
+            }
+
+            _audioManager.Mode = Mode.InCommunication;
+            if (OperatingSystem.IsAndroidVersionAtLeast(26))
+            {
+                using var attributesBuilder = new AudioAttributes.Builder();
+                var attributes = attributesBuilder
+                    .SetUsage(AudioUsageKind.VoiceCommunication)
+                    ?.SetContentType(AudioContentType.Speech)
+                    ?.Build();
+                if (attributes is not null)
+                {
+                    using var requestBuilder = new AudioFocusRequestClass.Builder(AudioFocus.GainTransient);
+                    _focusRequest = requestBuilder
+                        .SetAudioAttributes(attributes)
+                        ?.SetOnAudioFocusChangeListener(_focusListener)
+                        ?.Build();
+                    if (_focusRequest is not null)
+                    {
+                        _ = _audioManager.RequestAudioFocus(_focusRequest);
+                    }
+                }
+            }
+            else
+            {
+#pragma warning disable CS0618
+                _ = _audioManager.RequestAudioFocus(_focusListener, global::Android.Media.Stream.VoiceCall, AudioFocus.GainTransient);
+#pragma warning restore CS0618
+            }
+        }
+    }
+
+    private void EndCommunication()
+    {
+        lock (_communicationGate)
+        {
+            if (_communicationUsers == 0 || --_communicationUsers != 0)
+            {
+                return;
+            }
+
+            ReleaseCommunicationLocked();
+        }
+    }
+
+    private void EndAllCommunication()
+    {
+        lock (_communicationGate)
+        {
+            _communicationUsers = 0;
+            ReleaseCommunicationLocked();
+        }
+    }
+
+    private void ReleaseCommunicationLocked()
+    {
+        if (_audioManager is null)
+        {
+            return;
+        }
+
+        if (OperatingSystem.IsAndroidVersionAtLeast(26))
+        {
+            if (_focusRequest is not null)
+            {
+                _ = _audioManager.AbandonAudioFocusRequest(_focusRequest);
+                _focusRequest.Dispose();
+                _focusRequest = null;
+            }
+        }
+        else
+        {
+#pragma warning disable CS0618
+            _ = _audioManager.AbandonAudioFocus(_focusListener);
+#pragma warning restore CS0618
+        }
+
+        if (OperatingSystem.IsAndroidVersionAtLeast(31))
+        {
+            _audioManager.ClearCommunicationDevice();
+        }
+        else
+        {
+#pragma warning disable CS0618
+            _audioManager.SpeakerphoneOn = false;
+#pragma warning restore CS0618
+        }
+
+        _audioManager.Mode = _originalMode;
+    }
+
     [SupportedOSPlatform("android23.0")]
     private static bool HasRecordAudioPermission() =>
         global::Android.App.Application.Context.CheckSelfPermission(global::Android.Manifest.Permission.RecordAudio) == Permission.Granted;
+
+    private sealed class AudioFocusListener : Java.Lang.Object, AudioManager.IOnAudioFocusChangeListener
+    {
+        public void OnAudioFocusChange(AudioFocus focusChange)
+        {
+        }
+    }
 }
 
 internal sealed class AndroidAudioCaptureStream : IAudioCaptureStream
 {
     private readonly AudioRecord _record;
+    private readonly Action _beginCommunication;
+    private readonly Action _endCommunication;
     private readonly object _gate = new();
     private CancellationTokenSource? _lifetime;
     private Task? _worker;
     private bool _disposed;
+    private bool _communicationStarted;
 
-    public AndroidAudioCaptureStream(AudioStreamRequest request)
+    public AndroidAudioCaptureStream(AudioStreamRequest request, Action beginCommunication, Action endCommunication)
     {
         Request = request;
+        _beginCommunication = beginCommunication;
+        _endCommunication = endCommunication;
         var minimumBytes = AudioRecord.GetMinBufferSize(
             request.SampleRate,
             ChannelIn.Mono,
@@ -135,6 +282,8 @@ internal sealed class AndroidAudioCaptureStream : IAudioCaptureStream
 
             try
             {
+                _beginCommunication();
+                _communicationStarted = true;
                 _record.StartRecording();
                 if (_record.RecordingState != RecordState.Recording)
                 {
@@ -150,6 +299,7 @@ internal sealed class AndroidAudioCaptureStream : IAudioCaptureStream
             }
             catch (Exception ex)
             {
+                EndCommunication();
                 Error?.Invoke(ex.Message);
                 throw ex is AudioDeviceException ? ex : new AudioDeviceException("Could not start Android microphone capture.", ex);
             }
@@ -188,6 +338,7 @@ internal sealed class AndroidAudioCaptureStream : IAudioCaptureStream
 
         _lifetime?.Dispose();
         _lifetime = null;
+        EndCommunication();
     }
 
     public void Dispose()
@@ -201,6 +352,15 @@ internal sealed class AndroidAudioCaptureStream : IAudioCaptureStream
         _disposed = true;
         _record.Release();
         _record.Dispose();
+    }
+
+    private void EndCommunication()
+    {
+        if (_communicationStarted)
+        {
+            _communicationStarted = false;
+            _endCommunication();
+        }
     }
 
     private void CaptureLoop(CancellationToken cancellationToken)
@@ -247,14 +407,19 @@ internal sealed class AndroidAudioPlaybackStream : IAudioPlaybackStream
     private readonly ConcurrentQueue<short[]> _frames = new();
     private readonly SemaphoreSlim _available = new(0);
     private readonly object _gate = new();
+    private readonly Action _beginCommunication;
+    private readonly Action _endCommunication;
     private CancellationTokenSource? _lifetime;
     private Task? _worker;
     private int _queuedSamples;
     private bool _disposed;
+    private bool _communicationStarted;
 
-    public AndroidAudioPlaybackStream(AudioStreamRequest request)
+    public AndroidAudioPlaybackStream(AudioStreamRequest request, Action beginCommunication, Action endCommunication)
     {
         Request = request;
+        _beginCommunication = beginCommunication;
+        _endCommunication = endCommunication;
         var minimumBytes = AudioTrack.GetMinBufferSize(
             request.SampleRate,
             ChannelOut.Mono,
@@ -330,6 +495,8 @@ internal sealed class AndroidAudioPlaybackStream : IAudioPlaybackStream
 
             try
             {
+                _beginCommunication();
+                _communicationStarted = true;
                 _track.Play();
                 _lifetime = new CancellationTokenSource();
                 _worker = Task.Factory.StartNew(
@@ -340,6 +507,7 @@ internal sealed class AndroidAudioPlaybackStream : IAudioPlaybackStream
             }
             catch (Exception ex)
             {
+                EndCommunication();
                 Error?.Invoke(ex.Message);
                 throw new AudioDeviceException("Could not start Android call audio playback.", ex);
             }
@@ -387,6 +555,7 @@ internal sealed class AndroidAudioPlaybackStream : IAudioPlaybackStream
         Interlocked.Exchange(ref _queuedSamples, 0);
         _lifetime?.Dispose();
         _lifetime = null;
+        EndCommunication();
     }
 
     public void Dispose()
@@ -401,6 +570,15 @@ internal sealed class AndroidAudioPlaybackStream : IAudioPlaybackStream
         _available.Dispose();
         _track.Release();
         _track.Dispose();
+    }
+
+    private void EndCommunication()
+    {
+        if (_communicationStarted)
+        {
+            _communicationStarted = false;
+            _endCommunication();
+        }
     }
 
     private void PlaybackLoop(CancellationToken cancellationToken)

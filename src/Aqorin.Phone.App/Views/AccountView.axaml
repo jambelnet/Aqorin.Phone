@@ -7,8 +7,9 @@
              mc:Ignorable="d" d:DesignWidth="460" d:DesignHeight="640"
              x:Class="Aqorin.Phone.App.Views.AccountView"
              x:DataType="vm:AccountViewModel">
-    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0,0,4,0">
-        <StackPanel Margin="12,6,8,10" Spacing="10">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                  VerticalContentAlignment="Stretch">
+        <StackPanel Margin="12" Spacing="10" HorizontalAlignment="Stretch">
 
             <Border Classes="card">
                 <StackPanel>

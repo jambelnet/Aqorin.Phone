@@ -367,17 +367,15 @@ public sealed class SipCallService : ICallService
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
         IAudioMediaSession? media;
-        string? outputDeviceId;
         lock (_gate)
         {
             _isSpeakerEnabled = enabled;
             media = _media;
-            outputDeviceId = EffectiveMediaOptionsLocked().OutputDeviceId;
         }
 
         if (media is not null)
         {
-            await media.SetOutputDeviceAsync(outputDeviceId).WaitAsync(cancellationToken).ConfigureAwait(false);
+            await media.SetSpeakerEnabledAsync(enabled).WaitAsync(cancellationToken).ConfigureAwait(false);
         }
 
         PublishCurrent();
@@ -717,15 +715,19 @@ public sealed class SipCallService : ICallService
     {
         bool muted;
         bool held;
+        bool speakerEnabled;
         string? outputDeviceId;
         lock (_gate)
         {
             muted = _isMuted;
             held = _isOnHold;
+            speakerEnabled = _isSpeakerEnabled;
             outputDeviceId = EffectiveMediaOptionsLocked().OutputDeviceId;
         }
 
         await media.SetOutputDeviceAsync(outputDeviceId).ConfigureAwait(false);
+
+        await media.SetSpeakerEnabledAsync(speakerEnabled).ConfigureAwait(false);
 
         if (muted)
         {

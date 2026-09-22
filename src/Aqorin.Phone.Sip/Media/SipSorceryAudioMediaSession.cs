@@ -13,6 +13,8 @@ internal sealed class SipSorceryAudioMediaSession : IAudioMediaSession, ISipSorc
 {
     private readonly AppAudioSource _source;
     private readonly AppAudioSink _sink;
+    private readonly IAudioDeviceService _devices;
+    private readonly AudioMediaSessionOptions _options;
     private readonly VoIPMediaSession _session;
     private readonly ILogger _logger;
     private readonly object _controlGate = new();
@@ -22,6 +24,8 @@ internal sealed class SipSorceryAudioMediaSession : IAudioMediaSession, ISipSorc
 
     public SipSorceryAudioMediaSession(IAudioDeviceService devices, AudioMediaSessionOptions options, ILogger logger)
     {
+        _devices = devices;
+        _options = options;
         _logger = logger;
         _source = new AppAudioSource(devices, options, logger);
         _sink = new AppAudioSink(devices, options, logger);
@@ -73,6 +77,16 @@ internal sealed class SipSorceryAudioMediaSession : IAudioMediaSession, ISipSorc
     }
 
     public Task SetOutputDeviceAsync(string? outputDeviceId) => _sink.SetOutputDeviceAsync(outputDeviceId);
+
+    public Task SetSpeakerEnabledAsync(bool enabled)
+    {
+        if (_devices is ICallAudioRouteController routes)
+        {
+            return routes.SetSpeakerEnabledAsync(enabled);
+        }
+
+        return _sink.SetOutputDeviceAsync(enabled ? null : _options.OutputDeviceId);
+    }
 
     /// <summary>
     /// Closes RTP and releases the audio devices. Never blocks the caller on native device code: device teardown
