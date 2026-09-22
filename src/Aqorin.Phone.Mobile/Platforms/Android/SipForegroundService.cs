@@ -6,6 +6,7 @@ using Android.Net.Wifi;
 using Android.OS;
 using System.Runtime.Versioning;
 using Aqorin.Phone.Core.Model;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Aqorin.Phone.Mobile.Platforms.Android;
 
@@ -27,6 +28,7 @@ public sealed class SipForegroundService : Service
     private static CallInfo _call = CallInfo.Idle;
     private PowerManager.WakeLock? _wakeLock;
     private WifiManager.WifiLock? _wifiLock;
+    private int _recoveryStarted;
 
     public static void StartOrUpdate(RegistrationStatus registration, CallInfo call)
     {
@@ -70,7 +72,12 @@ public sealed class SipForegroundService : Service
         }
 
         UpdateForegroundNotification();
-        return StartCommandResult.NotSticky;
+        if (intent is null || !AndroidCallRuntime.IsAttached)
+        {
+            RestoreRuntime();
+        }
+
+        return StartCommandResult.Sticky;
     }
 
     public override global::Android.OS.IBinder? OnBind(Intent? intent) => null;
@@ -116,7 +123,9 @@ public sealed class SipForegroundService : Service
         var channel = hasCall ? CallsChannel : AvailabilityChannel;
         var title = isIncoming
             ? "Incoming call"
-            : hasCall ? "Call in progress" : "Aqorin Phone is available";
+            : hasCall
+                ? "Call in progress"
+                : registration.IsRegistered ? "Aqorin Phone is available" : "Restoring Aqorin Phone";
         var text = isIncoming
             ? $"Call from {call.RemoteParty}"
             : hasCall ? call.Message : registration.Message;
@@ -150,6 +159,28 @@ public sealed class SipForegroundService : Service
         }
 
         return builder.Build();
+    }
+
+    private void RestoreRuntime()
+    {
+        if (Interlocked.Exchange(ref _recoveryStarted, 1) != 0)
+        {
+            return;
+        }
+
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                var services = global::Aqorin.Phone.App.AppServices.Build();
+                await services.GetRequiredService<AndroidRegistrationRecovery>().RestoreAsync().ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                global::Android.Util.Log.Warn("Aqorin.Phone", $"Could not restore the SIP runtime: {ex}");
+                Stop();
+            }
+        });
     }
 
     private PendingIntent ServiceAction(string action, int requestCode) =>

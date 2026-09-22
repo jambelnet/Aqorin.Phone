@@ -208,6 +208,11 @@ public sealed partial class AccountViewModel : ViewModelBase
             return Task.FromResult(false);
         }
 
+        if (_registration.Status.State is RegistrationState.Registering or RegistrationState.Registered)
+        {
+            return Task.FromResult(true);
+        }
+
         return RegisterCurrentSettingsAsync(cancellationToken, persistSettings: false);
     }
 

@@ -7,8 +7,8 @@
     <AssemblyName>Aqorin.Phone.Mobile</AssemblyName>
     <ApplicationId>com.aqorin.phone</ApplicationId>
     <ApplicationTitle>Aqorin Phone</ApplicationTitle>
-    <ApplicationDisplayVersion>0.1.6</ApplicationDisplayVersion>
-    <ApplicationVersion>6</ApplicationVersion>
+    <ApplicationDisplayVersion>0.1.7</ApplicationDisplayVersion>
+    <ApplicationVersion>7</ApplicationVersion>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
     <!-- Avalonia 12.1.2 currently brings AndroidX Lifecycle Runtime with a minimum of API 23. -->
     <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">23.0</SupportedOSPlatformVersion>

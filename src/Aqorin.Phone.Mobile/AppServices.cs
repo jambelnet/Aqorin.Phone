@@ -18,55 +18,77 @@ namespace Aqorin.Phone.App;
 /// <summary>Mobile composition root.</summary>
 public static class AppServices
 {
+    private static readonly object ProviderGate = new();
+    private static ServiceProvider? _provider;
+
     public static ServiceProvider Build()
     {
-        var services = new ServiceCollection();
-        var diagnosticsLog = new DiagnosticsLog();
-
-        services.AddSingleton(diagnosticsLog);
-        services.AddLogging(builder =>
+        lock (ProviderGate)
         {
-            builder.SetMinimumLevel(LogLevel.Trace);
-            builder.AddFilter("Microsoft", LogLevel.Warning);
-            builder.AddFilter("Avalonia", LogLevel.Warning);
-            builder.AddSimpleConsole(o =>
+            if (_provider is not null)
             {
-                o.SingleLine = true;
-                o.TimestampFormat = "HH:mm:ss ";
-            });
-            builder.AddProvider(new DiagnosticsLoggerProvider(diagnosticsLog));
-        });
+                return _provider;
+            }
 
-        services.AddSingleton<IUiDispatcher, AvaloniaUiDispatcher>();
-        services.AddSingleton<ISettingsStore, JsonSettingsStore>();
-        services.AddSingleton<IContactStore, JsonContactStore>();
-        services.AddSingleton<ICallHistoryStore, JsonCallHistoryStore>();
-        services.AddSingleton<IUiPreferencesStore, JsonUiPreferencesStore>();
-        services.AddSingleton<IRingtonePlayer, RingtonePlayer>();
-        services.AddSingleton<IDiagnosticsSwitch, DiagnosticsSwitch>();
+            var services = new ServiceCollection();
+            var diagnosticsLog = new DiagnosticsLog();
+
+            services.AddSingleton(diagnosticsLog);
+            services.AddLogging(builder =>
+            {
+                builder.SetMinimumLevel(LogLevel.Trace);
+                builder.AddFilter("Microsoft", LogLevel.Warning);
+                builder.AddFilter("Avalonia", LogLevel.Warning);
+                builder.AddSimpleConsole(o =>
+                {
+                    o.SingleLine = true;
+                    o.TimestampFormat = "HH:mm:ss ";
+                });
+                builder.AddProvider(new DiagnosticsLoggerProvider(diagnosticsLog));
+            });
+
+            services.AddSingleton<IUiDispatcher, AvaloniaUiDispatcher>();
+            services.AddSingleton<ISettingsStore, JsonSettingsStore>();
+            services.AddSingleton<IContactStore, JsonContactStore>();
+            services.AddSingleton<ICallHistoryStore, JsonCallHistoryStore>();
+            services.AddSingleton<IUiPreferencesStore, JsonUiPreferencesStore>();
+            services.AddSingleton<IRingtonePlayer, RingtonePlayer>();
+            services.AddSingleton<IDiagnosticsSwitch, DiagnosticsSwitch>();
 
 #if ANDROID
-        services.AddSingleton<IAudioDeviceService, AndroidAudioDeviceService>();
-        services.AddSingleton<IMobileCallIntegration, AndroidCallIntegration>();
+            services.AddSingleton<IAudioDeviceService, AndroidAudioDeviceService>();
+            services.AddSingleton<IMobileCallIntegration, AndroidCallIntegration>();
+            services.AddSingleton<AndroidRegistrationRecovery>();
 #elif IOS
-        services.AddSingleton<IAudioDeviceService, IosAudioDeviceService>();
-        services.AddSingleton<IMobileCallIntegration, IosCallIntegration>();
+            services.AddSingleton<IAudioDeviceService, IosAudioDeviceService>();
+            services.AddSingleton<IMobileCallIntegration, IosCallIntegration>();
 #else
-        services.AddSingleton<IAudioDeviceService>(_ =>
-            new NullAudioDeviceService("iOS audio capture/playback is not implemented yet."));
+            services.AddSingleton<IAudioDeviceService>(_ =>
+                new NullAudioDeviceService("Mobile audio capture/playback is not available on this platform."));
 #endif
 
-        services.AddSipSorceryTelephony();
+            services.AddSipSorceryTelephony();
 
-        services.AddSingleton<AccountViewModel>();
-        services.AddSingleton<DialerViewModel>();
-        services.AddSingleton<DiagnosticsViewModel>();
-        services.AddSingleton<MainWindowViewModel>();
+            services.AddSingleton<AccountViewModel>();
+            services.AddSingleton<DialerViewModel>();
+            services.AddSingleton<DiagnosticsViewModel>();
+            services.AddSingleton<MainWindowViewModel>();
 
-        var provider = services.BuildServiceProvider(new ServiceProviderOptions { ValidateOnBuild = true, ValidateScopes = true });
-        SipServiceCollectionExtensions.UseSipSorceryLogging(provider.GetRequiredService<ILoggerFactory>());
-        provider.GetRequiredService<IMobileCallIntegration>().Start();
-        return provider;
+            var provider = services.BuildServiceProvider(new ServiceProviderOptions { ValidateOnBuild = true, ValidateScopes = true });
+            _provider = provider;
+            try
+            {
+                SipServiceCollectionExtensions.UseSipSorceryLogging(provider.GetRequiredService<ILoggerFactory>());
+                provider.GetRequiredService<IMobileCallIntegration>().Start();
+                return provider;
+            }
+            catch
+            {
+                _provider = null;
+                provider.Dispose();
+                throw;
+            }
+        }
     }
 
     public static async Task ShutdownAsync(ServiceProvider services)
@@ -146,5 +168,12 @@ public static class AppServices
 
         logger.LogInformation("Aqorin.Phone mobile stopped.");
         await services.DisposeAsync().ConfigureAwait(false);
+        lock (ProviderGate)
+        {
+            if (ReferenceEquals(_provider, services))
+            {
+                _provider = null;
+            }
+        }
     }
 }
