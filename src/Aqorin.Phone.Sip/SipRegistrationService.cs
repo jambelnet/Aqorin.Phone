@@ -187,6 +187,21 @@ public sealed class SipRegistrationService : ISipRegistrationService
     public async Task RefreshAsync(CancellationToken cancellationToken = default)
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
+
+        SipAccount? failedAccount;
+        lock (_gate)
+        {
+            failedAccount = _status.State == RegistrationState.Failed && !_status.IsAuthenticationFailure
+                ? _account
+                : null;
+        }
+
+        if (failedAccount is not null)
+        {
+            await RegisterAsync(failedAccount, cancellationToken).ConfigureAwait(false);
+            return;
+        }
+
         await _operation.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
@@ -204,12 +219,22 @@ public sealed class SipRegistrationService : ISipRegistrationService
 
             old?.Stop(sendUnregister: false);
             old?.Dispose();
+            _context.IsRegistered = false;
             Publish(new RegistrationStatus
             {
                 State = RegistrationState.Registering,
-                Message = "Refreshing registration…",
+                Message = "Network changed; rebuilding SIP connection…",
                 AddressOfRecord = _account?.Settings.AddressOfRecord,
             });
+
+            var transportFailure = await RecycleTransportIfIdleAsync(cancellationToken).ConfigureAwait(false);
+            if (transportFailure is not null)
+            {
+                _failedAttempts++;
+                ScheduleRetry(transportFailure, _lifetime.Token);
+                return;
+            }
+
             await AttemptAsync(_lifetime.Token, cancellationToken).ConfigureAwait(false);
         }
         finally
@@ -445,7 +470,14 @@ public sealed class SipRegistrationService : ISipRegistrationService
                         return;
                     }
 
-                    RecycleTransportIfIdle();
+                    var transportFailure = await RecycleTransportIfIdleAsync(lifetime).ConfigureAwait(false);
+                    if (transportFailure is not null)
+                    {
+                        _failedAttempts++;
+                        ScheduleRetry(transportFailure, lifetime);
+                        return;
+                    }
+
                     await AttemptAsync(lifetime, CancellationToken.None).ConfigureAwait(false);
                 }
                 finally
@@ -515,23 +547,52 @@ public sealed class SipRegistrationService : ISipRegistrationService
     /// network change, a stalled receive loop). Before retrying, open a fresh transport — unless a call is in progress,
     /// which would be torn down with the socket.
     /// </summary>
-    private void RecycleTransportIfIdle()
+    private async Task<RegistrationEvent?> RecycleTransportIfIdleAsync(CancellationToken cancellationToken)
     {
         var account = _account;
-        if (account is null || _context.CallInProgress || _context.Transport is null)
+        if (account is null || _context.CallInProgress)
         {
-            return;
+            return null;
+        }
+
+        System.Net.IPEndPoint endpoint;
+        try
+        {
+            var host = account.Settings.Registrar.Trim();
+            var addresses = await _resolver.ResolveAsync(host, cancellationToken).ConfigureAwait(false);
+            var (address, resolveError) = RegistrarResolution.Choose(host, addresses);
+            if (address is null)
+            {
+                return new RegistrationEvent(RegistrationOutcome.ResolutionFailure, resolveError, null, null);
+            }
+
+            endpoint = new System.Net.IPEndPoint(address, account.Settings.Port);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Could not resolve the SIP registrar while rebuilding the transport.");
+            return new RegistrationEvent(RegistrationOutcome.ResolutionFailure, ex.Message, null, null);
         }
 
         try
         {
-            var fresh = _transportFactory.Create(account.Settings, _registrar);
+            var fresh = _transportFactory.Create(account.Settings, endpoint);
+            _registrar = endpoint;
             _context.ReplaceTransport(fresh);
-            _logger.LogInformation("Re-opened the SIP transport before retrying registration ({Description}).", fresh.Description);
+            _logger.LogInformation(
+                "Rebuilt the SIP transport on {EndPoint} ({Description}).",
+                endpoint,
+                fresh.Description);
+            return null;
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "Could not re-open the SIP transport; retrying on the existing one.");
+            _logger.LogWarning(ex, "Could not rebuild the SIP transport.");
+            return new RegistrationEvent(RegistrationOutcome.TemporaryFailure, ex.Message, null, null);
         }
     }
 
@@ -565,7 +626,7 @@ public sealed class SipRegistrationService : ISipRegistrationService
     }
 
     // ------------------------------------------------------------------------------------------------------------------
-    // Network changes: restart the registration client (same transport) after a short debounce.
+    // Network changes: resolve again and rebuild the socket after a short debounce.
 
     private CancellationTokenSource? _networkDebounce;
 
@@ -619,7 +680,10 @@ public sealed class SipRegistrationService : ISipRegistrationService
     private void OnNetworkChanged(object? sender, EventArgs e)
     {
         var lifetime = _lifetime?.Token;
-        if (lifetime is null || lifetime.Value.IsCancellationRequested || _status.State != RegistrationState.Registered)
+        var status = _status;
+        var canRecover = status.State == RegistrationState.Registered
+            || (status.State == RegistrationState.Failed && !status.IsAuthenticationFailure);
+        if (lifetime is null || lifetime.Value.IsCancellationRequested || !canRecover)
         {
             return;
         }

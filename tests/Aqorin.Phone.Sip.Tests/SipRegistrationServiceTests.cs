@@ -212,6 +212,27 @@ public class SipRegistrationServiceTests
         Assert.Equal(2, _clients.Created.Count);
         Assert.Equal([false], _clients.Created[0].StopCalls);
         Assert.True(_clients.Created[0].Disposed);
+        Assert.Equal(2, _transports.Created.Count);
+        Assert.True(_transports.Created[0].Disposed);
+        Assert.False(_transports.Created[1].Disposed);
+    }
+
+    [Fact]
+    public async Task Explicit_refresh_recovers_a_terminal_network_failure()
+    {
+        await using var service = Create(new ExponentialBackoffPolicy(
+            TimeSpan.FromMilliseconds(10),
+            TimeSpan.FromMilliseconds(10),
+            maxAttempts: 0));
+        _clients.ScriptedOutcomes.Enqueue(Timeout());
+        await service.RegisterAsync(Account);
+        Assert.Equal(RegistrationState.Failed, service.Status.State);
+        _clients.ScriptedOutcomes.Enqueue(Success());
+
+        await service.RefreshAsync();
+
+        Assert.Equal(RegistrationState.Registered, service.Status.State);
+        Assert.Equal(2, _transports.Created.Count);
     }
 
     [Fact]

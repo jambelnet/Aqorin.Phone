@@ -2,7 +2,7 @@
 #define MyAppPublisher "Aqorin"
 #define MyAppExeName "Aqorin.Phone.exe"
 #ifndef MyAppVersion
-#define MyAppVersion "0.1.8"
+#define MyAppVersion "0.1.9"
 #endif
 #ifndef SourceDir
 #define SourceDir "..\publish\" + MyAppVersion + "\win-x64"

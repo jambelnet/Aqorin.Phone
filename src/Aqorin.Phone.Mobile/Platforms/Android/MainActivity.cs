@@ -20,6 +20,7 @@ public sealed class MainActivity : AvaloniaMainActivity
 {
     private const int CallPermissionRequest = 1001;
     private static WeakReference<MainActivity>? _current;
+    private long _backgroundedAt;
 
     protected override void OnCreate(Bundle? savedInstanceState)
     {
@@ -37,6 +38,18 @@ public sealed class MainActivity : AvaloniaMainActivity
         base.OnResume();
         _current = new WeakReference<MainActivity>(this);
         RefreshForegroundLayout();
+
+        var backgroundedAt = Interlocked.Exchange(ref _backgroundedAt, 0);
+        if (backgroundedAt > 0 && System.Environment.TickCount64 - backgroundedAt >= 30_000)
+        {
+            _ = AndroidCallRuntime.RefreshRegistrationAsync();
+        }
+    }
+
+    protected override void OnPause()
+    {
+        Interlocked.Exchange(ref _backgroundedAt, System.Environment.TickCount64);
+        base.OnPause();
     }
 
     internal static void RequestBackgroundCallingAccess()

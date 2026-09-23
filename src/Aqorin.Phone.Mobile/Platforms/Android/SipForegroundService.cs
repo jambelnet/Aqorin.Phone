@@ -29,6 +29,10 @@ public sealed class SipForegroundService : Service
     private PowerManager.WakeLock? _wakeLock;
     private WifiManager.WifiLock? _wifiLock;
     private DeviceIdleReceiver? _deviceIdleReceiver;
+    private global::Android.Net.ConnectivityManager? _connectivityManager;
+    private DefaultNetworkCallback? _networkCallback;
+    private CancellationTokenSource? _networkRefresh;
+    private int _defaultNetworkSeen;
     private int _recoveryStarted;
     private long _lastIdleRefresh;
 
@@ -64,6 +68,7 @@ public sealed class SipForegroundService : Service
         CreateNotificationChannels();
         AcquireAvailabilityLocks();
         RegisterDeviceIdleReceiver();
+        RegisterDefaultNetworkCallback();
     }
 
     public override StartCommandResult OnStartCommand(Intent? intent, StartCommandFlags flags, int startId)
@@ -87,6 +92,7 @@ public sealed class SipForegroundService : Service
 
     public override void OnDestroy()
     {
+        UnregisterDefaultNetworkCallback();
         UnregisterDeviceIdleReceiver();
         ReleaseAvailabilityLocks();
         base.OnDestroy();
@@ -322,6 +328,78 @@ public sealed class SipForegroundService : Service
         }
     }
 
+    private void RegisterDefaultNetworkCallback()
+    {
+        if (GetSystemService(ConnectivityService) is not global::Android.Net.ConnectivityManager manager)
+        {
+            return;
+        }
+
+        _connectivityManager = manager;
+        _networkCallback = new DefaultNetworkCallback(this);
+        if (OperatingSystem.IsAndroidVersionAtLeast(24))
+        {
+            manager.RegisterDefaultNetworkCallback(_networkCallback);
+            return;
+        }
+
+        using var request = new global::Android.Net.NetworkRequest.Builder().Build();
+        manager.RegisterNetworkCallback(request!, _networkCallback);
+    }
+
+    private void UnregisterDefaultNetworkCallback()
+    {
+        _networkRefresh?.Cancel();
+        _networkRefresh?.Dispose();
+        _networkRefresh = null;
+
+        if (_connectivityManager is not null && _networkCallback is not null)
+        {
+            try
+            {
+                _connectivityManager.UnregisterNetworkCallback(_networkCallback);
+            }
+            catch (Java.Lang.IllegalArgumentException)
+            {
+            }
+        }
+
+        _networkCallback?.Dispose();
+        _networkCallback = null;
+        _connectivityManager = null;
+    }
+
+    private void OnDefaultNetworkAvailable()
+    {
+        if (Interlocked.Exchange(ref _defaultNetworkSeen, 1) == 0)
+        {
+            return;
+        }
+
+        var refresh = new CancellationTokenSource();
+        var previous = Interlocked.Exchange(ref _networkRefresh, refresh);
+        previous?.Cancel();
+        previous?.Dispose();
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                await Task.Delay(TimeSpan.FromSeconds(2), refresh.Token).ConfigureAwait(false);
+                if (AndroidCallRuntime.IsAttached)
+                {
+                    await AndroidCallRuntime.RefreshRegistrationAsync().ConfigureAwait(false);
+                }
+                else
+                {
+                    RestoreRuntime();
+                }
+            }
+            catch (System.OperationCanceledException)
+            {
+            }
+        });
+    }
+
     private void ReleaseAvailabilityLocks()
     {
         if (_wakeLock?.IsHeld == true)
@@ -348,6 +426,16 @@ public sealed class SipForegroundService : Service
             {
                 owner.OnDeviceIdleModeChanged();
             }
+        }
+    }
+
+    private sealed class DefaultNetworkCallback(SipForegroundService owner)
+        : global::Android.Net.ConnectivityManager.NetworkCallback
+    {
+        public override void OnAvailable(global::Android.Net.Network network)
+        {
+            base.OnAvailable(network);
+            owner.OnDefaultNetworkAvailable();
         }
     }
 }

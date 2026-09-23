@@ -9,9 +9,9 @@
   <key>CFBundleName</key>
   <string>Aqorin Phone</string>
   <key>CFBundleVersion</key>
-  <string>8</string>
+  <string>9</string>
   <key>CFBundleShortVersionString</key>
-  <string>0.1.8</string>
+  <string>0.1.9</string>
   <key>LSRequiresIPhoneOS</key>
   <true/>
   <key>NSMicrophoneUsageDescription</key>
