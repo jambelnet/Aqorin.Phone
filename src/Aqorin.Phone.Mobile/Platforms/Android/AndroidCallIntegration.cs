@@ -71,6 +71,7 @@ public sealed class AndroidCallIntegration : IMobileCallIntegration
     private static void Publish(RegistrationStatus registration, CallInfo call)
     {
         if (registration.State is RegistrationState.Registering or RegistrationState.Registered or RegistrationState.Unregistering
+            || registration.State == RegistrationState.Failed && !registration.IsAuthenticationFailure
             || call.IsInProgress)
         {
             SipForegroundService.StartOrUpdate(registration, call);
@@ -126,14 +127,16 @@ internal static class AndroidCallRuntime
     public static async Task RefreshRegistrationAsync()
     {
         ISipRegistrationService? registration;
+        ICallService? calls;
         ILogger? logger;
         lock (Gate)
         {
             registration = _registration;
+            calls = _calls;
             logger = _logger;
         }
 
-        if (registration is null)
+        if (registration is null || calls?.CurrentCall.IsInProgress == true)
         {
             return;
         }
@@ -144,7 +147,34 @@ internal static class AndroidCallRuntime
         }
         catch (Exception ex)
         {
-            logger?.LogWarning(ex, "SIP registration refresh after Android Doze failed.");
+            logger?.LogWarning(ex, "Android SIP registration refresh failed.");
+        }
+    }
+
+    public static async Task MaintainRegistrationAsync()
+    {
+        ISipRegistrationService? registration;
+        ICallService? calls;
+        lock (Gate)
+        {
+            registration = _registration;
+            calls = _calls;
+        }
+
+        if (registration is null || calls?.CurrentCall.IsInProgress == true)
+        {
+            return;
+        }
+
+        var status = registration.Status;
+        var recoverableFailure = status.State == RegistrationState.Failed
+                                 && !status.IsAuthenticationFailure;
+        var registrationNearExpiry = status.State == RegistrationState.Registered
+                                     && status.ExpiresAt is { } expiresAt
+                                     && expiresAt <= DateTimeOffset.UtcNow.AddSeconds(75);
+        if (recoverableFailure || registrationNearExpiry)
+        {
+            await RefreshRegistrationAsync().ConfigureAwait(false);
         }
     }
 

@@ -32,6 +32,7 @@ public sealed class SipForegroundService : Service
     private global::Android.Net.ConnectivityManager? _connectivityManager;
     private DefaultNetworkCallback? _networkCallback;
     private CancellationTokenSource? _networkRefresh;
+    private CancellationTokenSource? _registrationWatchdog;
     private int _defaultNetworkSeen;
     private int _recoveryStarted;
     private long _lastIdleRefresh;
@@ -69,6 +70,7 @@ public sealed class SipForegroundService : Service
         AcquireAvailabilityLocks();
         RegisterDeviceIdleReceiver();
         RegisterDefaultNetworkCallback();
+        StartRegistrationWatchdog();
     }
 
     public override StartCommandResult OnStartCommand(Intent? intent, StartCommandFlags flags, int startId)
@@ -92,6 +94,7 @@ public sealed class SipForegroundService : Service
 
     public override void OnDestroy()
     {
+        StopRegistrationWatchdog();
         UnregisterDefaultNetworkCallback();
         UnregisterDeviceIdleReceiver();
         ReleaseAvailabilityLocks();
@@ -398,6 +401,42 @@ public sealed class SipForegroundService : Service
             {
             }
         });
+    }
+
+    private void StartRegistrationWatchdog()
+    {
+        var watchdog = new CancellationTokenSource();
+        _registrationWatchdog = watchdog;
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                while (true)
+                {
+                    await Task.Delay(TimeSpan.FromSeconds(30), watchdog.Token).ConfigureAwait(false);
+                    if (AndroidCallRuntime.IsAttached)
+                    {
+                        await AndroidCallRuntime.MaintainRegistrationAsync().ConfigureAwait(false);
+                    }
+                    else
+                    {
+                        RestoreRuntime();
+                    }
+                }
+            }
+            catch (System.OperationCanceledException) when (watchdog.IsCancellationRequested)
+            {
+            }
+            finally
+            {
+                watchdog.Dispose();
+            }
+        });
+    }
+
+    private void StopRegistrationWatchdog()
+    {
+        Interlocked.Exchange(ref _registrationWatchdog, null)?.Cancel();
     }
 
     private void ReleaseAvailabilityLocks()

@@ -40,7 +40,7 @@ public sealed class MainActivity : AvaloniaMainActivity
         RefreshForegroundLayout();
 
         var backgroundedAt = Interlocked.Exchange(ref _backgroundedAt, 0);
-        if (backgroundedAt > 0 && System.Environment.TickCount64 - backgroundedAt >= 30_000)
+        if (backgroundedAt > 0 && System.Environment.TickCount64 - backgroundedAt >= 5_000)
         {
             _ = AndroidCallRuntime.RefreshRegistrationAsync();
         }
