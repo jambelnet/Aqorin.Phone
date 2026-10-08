@@ -55,12 +55,12 @@
                 Background="{DynamicResource PanelSurfaceBrush}">
             <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="12">
                 <StackPanel Grid.Row="0" Grid.Column="0" Spacing="3" VerticalAlignment="Center">
-                    <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8" VerticalAlignment="Center" MinWidth="0">
                         <Ellipse Width="9" Height="9" VerticalAlignment="Center"
                                  Fill="{Binding StatusIsGood, Converter={x:Static views:Converters.GoodBadBrush}}" />
-                        <TextBlock Text="{Binding StatusBarText}" Classes="caption" TextWrapping="NoWrap"
+                        <TextBlock Grid.Column="1" MinWidth="0" Text="{Binding StatusBarText}" Classes="caption" TextWrapping="NoWrap"
                                    VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
-                    </StackPanel>
+                    </Grid>
                     <TextBlock Text="{Binding AudioWarning}" Classes="error" IsVisible="{Binding HasAudioWarning}" />
                 </StackPanel>
                 <Button Grid.Row="0" Grid.Column="1" Classes="themeToggle"
